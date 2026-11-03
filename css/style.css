@@ -103,6 +103,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .center-db, .center-sub { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
 .center-db { color: var(--accent); letter-spacing: 1px; }
 .orbit-center h1 { font-size: clamp(36px, 6vw, 84px); line-height: 1.02; letter-spacing: -2px; font-weight: 700; margin: 6px 0; }
+/* Nền mờ sau tên, che chữ của nền Glyph. Gắn vào khung quỹ đạo để nằm dưới mọi thẻ; cỡ tính theo cỡ chữ của tên */
+.orbit-container::before {
+  content: ""; position: absolute; z-index: -1; left: 50%; top: 50%; pointer-events: none;
+  font-size: clamp(36px, 6vw, 84px); width: 8em; height: 3.2em; transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--bg) 85%, transparent) 55%, transparent);
+}
 
 /* Thẻ bảng dữ liệu: cỡ chữ tính theo em nên co giãn cùng thẻ */
 .tcard {
@@ -408,6 +414,7 @@ body { padding-bottom: 26px; }
   .tcard-b span { display: none; }
   .center-db, .center-sub { font-size: 10px; }
   .orbit-center h1 { font-size: 32px; letter-spacing: -1px; }
+  .orbit-container::before { font-size: 32px; width: 8em; height: 6em; }   /* tên xuống 2 dòng */
   .orbit-center h1 span { display: block; }
   .record { grid-template-columns: minmax(0, 1fr); }
   .photo-cell { border-right: 0; border-bottom: 1px solid var(--line); padding: 22px 16px 16px; }
