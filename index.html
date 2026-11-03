@@ -1,278 +1,358 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Trang giới thiệu cá nhân của Vũ Văn Hiếu - sinh viên Hệ thống thông tin quản lý, Đại học Giao thông Vận tải, định hướng Data Engineer.">
-<title>Vũ Văn Hiếu - Nhóm 4</title>
+<meta name="description" content="Hồ sơ cá nhân của Vũ Văn Hiếu - sinh viên Hệ thống thông tin quản lý, Đại học Giao thông Vận tải, định hướng Data Engineer.">
+<title>vvh_db · Vũ Văn Hiếu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="css/style.css">
+<script>
+  // Áp giao diện đã lưu trước khi vẽ trang để không bị nháy màu
+  try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
 </head>
 <body>
 
-<!-- ===== HEADER: MENU + TRANG CHỦ ===== -->
-<header>
-  <nav id="navbar" aria-label="Menu chính">
-    <a class="brand" href="#home">hieu<b>.</b>profile</a>
-    <ul id="menu">
-      <li><a href="#home" class="active">Trang chủ</a></li>
-      <li><a href="#about">Giới thiệu</a></li>
-      <li><a href="#goals">Mục tiêu</a></li>
-      <li><a href="#profile">Hồ sơ</a></li>
-      <li><a href="#projects">Dự án</a></li>
-      <li><a href="#contact">Liên hệ</a></li>
-    </ul>
-    <div class="nav-tools">
-      <button id="themeBtn" class="icon-btn" type="button" aria-label="Chuyển giao diện sáng / tối">☀</button>
-      <button id="menuBtn" class="icon-btn menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="menu">☰</button>
-    </div>
-  </nav>
+<!-- ===== MÀN KHỞI ĐỘNG: giả lập kết nối cơ sở dữ liệu ===== -->
+<div class="boot" id="boot" hidden>
+  <div class="boot-box">
+    <p class="boot-title">vvh_db <span>v2.0</span></p>
+    <pre class="boot-log" id="bootLog" aria-live="polite"></pre>
+    <div class="boot-bar"><i id="bootBar"></i></div>
+    <button type="button" class="btn fill boot-go" id="bootGo" hidden>▶ CONNECT vvh_db</button>
+    <p class="boot-skip">Enter để kết nối · bật âm thanh để trải nghiệm đầy đủ</p>
+  </div>
+</div>
+
+<!-- Nền động Glyph, nằm sau mọi nội dung -->
+<div class="glyph-bg" id="glyphBg" aria-hidden="true"></div>
+
+<!-- ===== THANH TRÊN: như cửa sổ phần mềm cơ sở dữ liệu ===== -->
+<header class="bar">
+  <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  <a class="db" href="#ho_so">database: <b>vvh_db</b><span> · owner: vu_van_hieu</span></a>
+  <div class="conn"><i></i><span>đã kết nối</span></div>
+  <button type="button" class="sound-btn" id="soundBtn" aria-pressed="true" title="Bật/tắt âm thanh">
+    <span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="sound-txt">âm thanh</span>
+  </button>
+  <div class="mode" role="group" aria-label="Chọn giao diện">
+    <button type="button" data-mode="dark" aria-pressed="true">● Tối</button>
+    <button type="button" data-mode="light" aria-pressed="false">○ Sáng</button>
+  </div>
 </header>
 
-<main>
+<!-- ===== DẢI TAB: chuyển bảng ===== -->
+<nav class="tabs" aria-label="Các bảng dữ liệu">
+  <a class="tab-back" href="#orbit">← Quỹ đạo</a>
+  <ul>
+    <li><a href="#ho_so">ho_so</a></li>
+    <li><a href="#so_thich">so_thich</a></li>
+    <li><a href="#muc_tieu">muc_tieu</a></li>
+    <li><a href="#nang_luc">nang_luc</a></li>
+    <li><a href="#du_an">du_an</a></li>
+    <li><a href="#hoc_van">hoc_van</a></li>
+    <li><a href="#lien_he">lien_he</a></li>
+  </ul>
+  <a class="tab-all" href="#tat-ca">SELECT * FROM *</a>
+</nav>
 
-<!-- ===== TRANG CHỦ ===== -->
-<section id="home" aria-labelledby="homeTitle">
-  <div class="wrap hero">
-    <div class="reveal">
-      <p class="label"><i></i>Nhóm 4 · Định hướng Data Engineer</p>
-      <h1 id="homeTitle" class="display">Vũ Văn<span>Hiếu</span></h1>
-      <p class="typing" id="typing" aria-live="off"></p>
-      <p class="desc">Sinh viên ngành Hệ thống thông tin quản lý tại trường Đại học Giao thông Vận tải. Mình có niềm đam mê ứng dụng toán học, công nghệ và khoa học dữ liệu để giải quyết các bài toán quan trọng của thế giới như môi trường, nông nghiệp, xuất khẩu.</p>
-      <ul class="tags">
-        <li>Python</li>
-        <li>SQL</li>
-        <li>C++</li>
-        <li>HTML · CSS · JS</li>
-      </ul>
-      <p class="hint">↓ khám phá hồ sơ của mình bên dưới</p>
-    </div>
+<!-- ===== MÀN ĐẦU: QUỸ ĐẠO CÁC BẢNG ===== -->
+<section id="orbitScreen" class="orbit-screen" aria-label="Sơ đồ các bảng dữ liệu" tabindex="-1">
+  <div class="orbit-center" id="orbitCenter">
+    <p class="center-db">database · vvh_db</p>
+    <h1>Vũ Văn <span>Hiếu</span></h1>
+    <p class="center-sub">-- 7 bảng · 30 dòng</p>
+  </div>
+  <div class="orbit-stage" id="orbitStage"></div>
+  <div class="orbit-foot">
+    <p>-- Kéo để xoay · bấm một thẻ để mở bảng</p>
+    <a class="btn line" href="#tat-ca">▶ SELECT * FROM *</a>
+  </div>
+</section>
 
-    <div class="badge-zone reveal">
-      <div class="swing">
-        <div class="lanyard" aria-hidden="true"></div>
-        <div class="clip" aria-hidden="true"></div>
-        <figure class="badge"><img src="images/avatar.jpg" alt="Ảnh chân dung Vũ Văn Hiếu"></figure>
+<main id="tables" tabindex="-1" hidden>
+
+    <!-- ===== 01 HỒ SƠ ===== -->
+    <section id="ho_so" class="table-block">
+      <div class="query">
+        <div class="ln" aria-hidden="true">1<br>2</div>
+        <code id="heroQuery" aria-label="SELECT * FROM ho_so WHERE ho_ten = 'Vũ Văn Hiếu';"></code>
+        <button class="run" type="button">▶ Chạy</button>
       </div>
-    </div>
-  </div>
-  <p class="scroll" aria-hidden="true">CUỘN ↓</p>
-</section>
-
-<!-- ===== GIỚI THIỆU ===== -->
-<section id="about" aria-labelledby="aboutTitle">
-  <div class="wrap">
-    <div class="about-top">
-      <div class="text reveal">
-        <p class="label">Giới thiệu</p>
-        <h2 id="aboutTitle" class="display">Vũ Văn<br>Hiếu</h2>
-        <p>Mình là Vũ Văn Hiếu, sinh viên ngành Hệ thống thông tin quản lý tại trường Đại học Giao thông Vận tải, sinh ngày 8 tháng 3 năm 2007 tại Hà Nội. Mình có niềm đam mê ứng dụng toán học, công nghệ và khoa học dữ liệu để giải quyết các bài toán quan trọng của thế giới như môi trường, nông nghiệp và xuất khẩu.</p>
-        <p>Mình là người hướng nội, thường quan sát kỹ trước khi đưa ra quyết định. Mình thích học hỏi những điều mới và luôn muốn tìm cách ngắn gọn nhất để giải quyết một vấn đề.</p>
-        <p>Ngoài giờ học, mình thích nghe nhạc, chơi game và đọc sách, nhất là những cuốn nói về giao tiếp và trí tuệ nhân tạo. Trang này là bài giới thiệu bản thân trong bài kiểm tra giữa kỳ môn Lập trình Web của nhóm 4.</p>
-        <div class="btns">
-          <a class="btn fill" href="#contact">Liên hệ với mình</a>
-          <a class="btn line" href="#projects">Xem dự án</a>
-        </div>
-      </div>
-      <figure class="circle reveal"><img src="images/avatar.jpg" alt="Ảnh Vũ Văn Hiếu"></figure>
-    </div>
-
-    <dl class="stats">
-      <div class="stat reveal"><dt>Ngày sinh</dt><dd>08/03/2007</dd></div>
-      <div class="stat reveal"><dt>Quê quán</dt><dd>Hà Nội</dd></div>
-      <div class="stat reveal"><dt>Ngành học</dt><dd>Hệ thống thông tin quản lý</dd></div>
-      <div class="stat reveal"><dt>Trường</dt><dd>Đại học Giao thông Vận tải</dd></div>
-    </dl>
-  </div>
-</section>
-
-<!-- ===== MỤC TIÊU ===== -->
-<section id="goals" aria-labelledby="goalsTitle">
-  <div class="wrap">
-    <div class="center reveal">
-      <p class="label">Mục tiêu nghề nghiệp</p>
-      <h2 id="goalsTitle" class="display">Trở thành Data Engineer</h2>
-      <p class="sub">Xây dựng và vận hành những hệ thống thu thập, xử lý và lưu trữ dữ liệu để doanh nghiệp ra quyết định dựa trên dữ liệu.</p>
-    </div>
-    <div class="goal-grid">
-      <article class="card reveal">
-        <p class="no">Trong 2 – 3 năm tới</p>
-        <h3>Thông thạo công cụ dữ liệu</h3>
-        <p>Bắt buộc phải thông thạo SQL và Python, hoặc Java/Scala cho Big Data.</p>
-      </article>
-      <article class="card reveal">
-        <p class="no">Trong 4 – 5 năm tới</p>
-        <h3>Junior → Mid-Level Data Engineer</h3>
-        <p>Phát triển từ vị trí Junior lên Mid-Level Data Engineer.</p>
-      </article>
-      <article class="card reveal">
-        <p class="no">Phát triển bản thân</p>
-        <h3>Ngoại ngữ &amp; quản lý</h3>
-        <p>Học thêm chứng chỉ tiếng Anh và phát triển thêm các kỹ năng về quản lý.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ===== HỒ SƠ (TAB) ===== -->
-<section id="profile" aria-labelledby="profileTitle">
-  <div class="wrap center">
-    <div class="reveal">
-      <p class="label">Hồ sơ cá nhân</p>
-      <h2 id="profileTitle" class="display">Tính cách, sở thích &amp; kỹ năng</h2>
-      <p class="sub">Chọn từng mục để xem chi tiết.</p>
-      <div class="tabs" role="tablist" aria-label="Các mục hồ sơ">
-        <button type="button" role="tab" class="on" id="tab-t1" aria-controls="t1" aria-selected="true">Tính cách</button>
-        <button type="button" role="tab" id="tab-t2" aria-controls="t2" aria-selected="false">Sở thích</button>
-        <button type="button" role="tab" id="tab-t3" aria-controls="t3" aria-selected="false">Kỹ năng</button>
-        <button type="button" role="tab" id="tab-t4" aria-controls="t4" aria-selected="false">Học vấn</button>
-        <button type="button" role="tab" id="tab-t5" aria-controls="t5" aria-selected="false">Chứng chỉ</button>
-      </div>
-    </div>
-
-    <div class="panel on" id="t1" role="tabpanel" aria-labelledby="tab-t1">
-      <article class="card"><p class="no">01</p><h3>Hướng nội</h3><p>Thường quan sát kỹ trước khi đưa ra quyết định.</p></article>
-      <article class="card"><p class="no">02</p><h3>Ham học hỏi</h3><p>Thích học hỏi những điều mới.</p></article>
-      <article class="card"><p class="no">03</p><h3>Điểm mạnh</h3><p>Luôn tìm con đường ngắn nhất để giải quyết vấn đề.</p></article>
-    </div>
-
-    <div class="panel" id="t2" role="tabpanel" aria-labelledby="tab-t2" hidden>
-      <article class="card"><p class="no">01</p><h3>Nghe nhạc</h3>
-        <ul><li>Rock / Alternative rock</li><li>Pop rock</li><li>Pop ballad</li><li>Nhạc Việt</li></ul></article>
-      <article class="card"><p class="no">02</p><h3>Chơi game</h3>
-        <ul><li>Minecraft</li><li>Delta Force</li></ul></article>
-      <article class="card"><p class="no">03</p><h3>Đọc sách</h3>
-        <p>Những cuốn sách về kỹ năng giao tiếp và trí tuệ nhân tạo (AI).</p></article>
-    </div>
-
-    <div class="panel" id="t3" role="tabpanel" aria-labelledby="tab-t3" hidden>
-      <article class="card"><p class="no">01</p><h3>Ngôn ngữ lập trình</h3>
-        <ul><li>Python</li><li>C++</li></ul></article>
-      <article class="card"><p class="no">02</p><h3>Web &amp; Dữ liệu</h3>
-        <ul><li>SQL</li><li>HTML (cơ bản)</li><li>CSS (cơ bản)</li><li>JavaScript (cơ bản)</li></ul></article>
-      <article class="card"><p class="no">03</p><h3>Khác</h3>
-        <ul><li>Thiết kế</li><li>Microsoft Office (chứng chỉ MOS)</li></ul></article>
-    </div>
-
-    <div class="panel" id="t4" role="tabpanel" aria-labelledby="tab-t4" hidden>
-      <ol class="timeline">
-        <li class="card">
-          <p class="no">Hiện tại</p>
-          <h3>Sinh viên ngành Hệ thống thông tin quản lý</h3>
-          <p class="where">Trường Đại học Giao thông Vận tải</p>
-          <p>Đang theo học ngành Hệ thống thông tin quản lý.</p>
-        </li>
-        <li class="card">
-          <p class="no">Hiện tại</p>
-          <h3>Thực hiện dự án cá nhân</h3>
-          <p class="where">ERP quản trị sản xuất cám &amp; kế toán</p>
-          <p>Đang xây dựng một dự án ERP cá nhân để thực hành. Chưa có thêm hoạt động hay thành tích khác.</p>
-        </li>
-      </ol>
-    </div>
-
-    <div class="panel" id="t5" role="tabpanel" aria-labelledby="tab-t5" hidden>
-      <article class="card"><p class="no">Chứng chỉ</p><h3>MOS</h3><p>Microsoft Office Specialist. Chứng nhận kỹ năng sử dụng thành thạo bộ ứng dụng Microsoft Office.</p></article>
-      <article class="card"><p class="no">Giải thưởng</p><h3>Chưa có</h3><p>Mình sẽ cập nhật khi có thành tích mới.</p></article>
-    </div>
-  </div>
-</section>
-
-<!-- ===== DỰ ÁN ===== -->
-<section id="projects" aria-labelledby="projectsTitle">
-  <div class="wrap">
-    <div class="center reveal">
-      <p class="label">Dự án cá nhân</p>
-      <h2 id="projectsTitle" class="display">Những gì mình đang làm</h2>
-    </div>
-
-    <div class="project-grid">
-      <article class="project reveal">
-        <img src="images/project-erp.svg" alt="Hình minh họa dự án ERP quản trị sản xuất và kế toán">
-        <div class="body">
-          <p class="status"><i></i>Đang thực hiện · có bản xem trước</p>
-          <h3>ERP quản trị sản xuất cám &amp; kế toán</h3>
-          <p>Ứng dụng web tiếng Việt cho doanh nghiệp tự phối trộn cám heo/gà, bán sỉ qua đại lý và có nhiều kho. Đây là dự án cá nhân, đang phát triển và có bản xem trước trực tuyến với dữ liệu mẫu giả lập.</p>
-          <ul class="features">
-            <li>Quy trình nối liền: thu mua, công thức R&amp;D, sản xuất, bán sỉ</li>
-            <li>Nhiều kho, theo dõi lô và hạn dùng, công nợ, sổ kế toán</li>
-            <li>Nhân sự, bảng lương, phân quyền theo phòng ban</li>
-            <li>Nhập / xuất Excel, đăng nhập MFA, sao lưu có mã hóa</li>
-          </ul>
-          <p class="tech-title">Công nghệ sử dụng</p>
-          <ul class="tags small">
-            <li>Next.js</li><li>React</li><li>TypeScript</li><li>Tailwind CSS</li>
-            <li>Drizzle ORM</li><li>Cloudflare D1</li><li>Recharts</li><li>ExcelJS</li>
-          </ul>
-          <div class="proj-links">
-            <a class="proj-link" href="https://cam-viet-erp-demo.vuhieu-020304.chatgpt.site/" target="_blank" rel="noopener">Xem bản xem trước ↗</a>
-            <a class="proj-link" href="https://github.com/vuhieu020304-creator" target="_blank" rel="noopener">GitHub cá nhân ↗</a>
+      <div class="meta"><span>Kết quả · ho_so</span><span class="time">1 dòng · 0.004 giây</span></div>
+      <div class="record result">
+        <div class="photo-cell">
+          <!-- Mặt trước: ảnh áo đen (tối). Mặt sau: ảnh thẻ áo trắng (sáng). Lật thẻ là đổi giao diện. -->
+          <div class="flip-card" id="flipCard" role="button" tabindex="0" aria-pressed="false" aria-label="Lật ảnh để đổi giao diện sáng hoặc tối">
+            <span class="flip-card__shadow" aria-hidden="true"></span>
+            <div class="flip-card__rotor">
+              <div class="flip-card__face flip-card__face--front">
+                <img src="images/avatar.jpg" alt="Vũ Văn Hiếu, ảnh chụp buổi tối áo đen" draggable="false">
+                <span class="flip-card__cap">anh_dai_dien · chế độ tối</span>
+                <span class="flip-card__glare" aria-hidden="true"></span>
+              </div>
+              <div class="flip-card__face flip-card__face--back">
+                <img src="images/anh-the.jpg" alt="Vũ Văn Hiếu, ảnh thẻ áo trắng" draggable="false">
+                <span class="flip-card__cap">anh_dai_dien · chế độ sáng</span>
+                <span class="flip-card__glare" aria-hidden="true"></span>
+              </div>
+            </div>
           </div>
+          <p class="flip-hint">⇄ Bấm hoặc kéo ảnh để đổi giao diện</p>
         </div>
+        <div class="info">
+          <h2 class="name">Vũ Văn Hiếu</h2>
+          <p class="typed" id="typed"></p>
+          <table class="fields">
+            <tr><th scope="row">ngay_sinh<small>DATE</small></th><td>08/03/2007</td></tr>
+            <tr><th scope="row">que_quan<small>VARCHAR</small></th><td>Hà Nội</td></tr>
+            <tr><th scope="row">nganh<small>VARCHAR</small></th><td>Hệ thống thông tin quản lý</td></tr>
+            <tr><th scope="row">truong<small>VARCHAR</small></th><td>Đại học Giao thông Vận tải</td></tr>
+            <tr><th scope="row">nhom<small>VARCHAR</small></th><td>Nhóm 4 · môn Lập trình Web</td></tr>
+            <tr><th scope="row">tinh_cach<small>TEXT[]</small></th><td>
+              <ul class="tags"><li>hướng nội</li><li>ham học hỏi</li><li>tìm đường ngắn nhất</li></ul>
+              <p class="sub">Quan sát kỹ trước khi quyết định, luôn tìm cách gọn nhất để giải một vấn đề.</p>
+            </td></tr>
+            <tr class="thesis"><th scope="row">tuyen_ngon<small>TEXT</small></th><td>“Một Data Engineer xuất sắc không tối ưu hệ thống cho ngày hôm nay, họ xây dựng kiến trúc để sẵn sàng cho <em>sự bùng nổ dữ liệu của 5 năm tới</em>.”</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 02 SỞ THÍCH ===== -->
+    <section id="so_thich" class="table-block">
+      <p class="label">-- Bảng 02 · Sở thích</p>
+      <div class="query"><div class="ln" aria-hidden="true">1</div><code><span class="kw">SELECT</span> ten, chi_tiet <span class="kw">FROM</span> so_thich;</code></div>
+      <table class="grid result">
+        <thead><tr><th>id</th><th>ten<small>VARCHAR</small></th><th>chi_tiet<small>TEXT</small></th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Nghe nhạc</td><td>Rock · Pop rock · Pop ballad · Nhạc Việt</td></tr>
+          <tr><td>2</td><td>Chơi game</td><td>Minecraft · Delta Force</td></tr>
+          <tr><td>3</td><td>Đọc sách</td><td>Sách về kỹ năng giao tiếp và trí tuệ nhân tạo</td></tr>
+        </tbody>
+      </table>
+      <div class="meta"><span>Kết quả · so_thich</span><span>3 dòng</span></div>
+    </section>
+
+    <!-- ===== 03 MỤC TIÊU ===== -->
+    <section id="muc_tieu" class="table-block">
+      <p class="label">-- Bảng 03 · Mục tiêu nghề nghiệp: trở thành Data Engineer</p>
+      <div class="query"><div class="ln" aria-hidden="true">1<br>2</div><code><span class="kw">SELECT</span> thoi_han, muc_tieu, trang_thai <span class="kw">FROM</span> muc_tieu
+<span class="kw">ORDER BY</span> thoi_han;</code></div>
+      <table class="grid result">
+        <thead><tr><th>id</th><th>thoi_han<small>INTERVAL</small></th><th>muc_tieu<small>TEXT</small></th><th>trang_thai<small>ENUM</small></th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td class="mono">2 – 3 năm</td><td><b>Thông thạo công cụ dữ liệu</b><span class="sub">Nắm chắc SQL và Python, thêm Java hoặc Scala cho Big Data.</span></td><td><span class="status run-s">đang chạy</span></td></tr>
+          <tr><td>2</td><td class="mono">4 – 5 năm</td><td><b>Junior → Mid-Level Data Engineer</b><span class="sub">Đi từ vị trí Junior lên Mid-Level.</span></td><td><span class="status plan">kế hoạch</span></td></tr>
+          <tr><td>3</td><td class="mono">song song</td><td><b>Ngoại ngữ &amp; quản lý</b><span class="sub">Lấy chứng chỉ tiếng Anh, rèn thêm kỹ năng quản lý.</span></td><td><span class="status run-s">đang chạy</span></td></tr>
+        </tbody>
+      </table>
+      <div class="meta"><span>Kết quả · muc_tieu</span><span>3 dòng</span></div>
+    </section>
+
+    <!-- ===== 04 NĂNG LỰC (bộ lọc = WHERE) ===== -->
+    <section id="nang_luc" class="table-block">
+      <p class="label">-- Bảng 04 · Năng lực (bấm để đổi điều kiện WHERE)</p>
+      <div class="query"><div class="ln" aria-hidden="true">1</div><code id="skillQuery"></code></div>
+      <div class="where" role="group" aria-label="Lọc kỹ năng theo nhóm">
+        <span>WHERE nhom =</span>
+        <button type="button" data-g="all" aria-pressed="true">*</button>
+        <button type="button" data-g="Lập trình" aria-pressed="false">'Lập trình'</button>
+        <button type="button" data-g="Dữ liệu" aria-pressed="false">'Dữ liệu'</button>
+        <button type="button" data-g="Web" aria-pressed="false">'Web'</button>
+        <button type="button" data-g="Công cụ" aria-pressed="false">'Công cụ'</button>
+        <button type="button" class="view-toggle" id="skillView"><b>\x</b><span data-v="cards">dạng thẻ</span> / <span data-v="table">dạng bảng</span></button>
+      </div>
+      <p class="level-legend">-- cap_do: <span>1 Làm quen ·</span> <span>2 Cơ bản ·</span> <span>3 Dùng trong dự án ·</span> <span>4 Thành thạo</span></p>
+      <!-- Thẻ dựng bằng JS từ các dòng của bảng dưới đây -->
+      <div class="card-grid skill-cards result" id="skillCards"></div>
+      <table class="grid result" id="skills">
+        <thead><tr><th>id</th><th>ky_nang<small>VARCHAR</small></th><th>nhom<small>ENUM</small></th><th>cap_do<small>INT</small></th><th>ghi_chu<small>VARCHAR</small></th></tr></thead>
+        <tbody>
+          <tr data-g="Lập trình" data-icon="python" data-brand="#3776AB"><td>1</td><td>Python</td><td><span class="pill">Lập trình</span></td><td class="mono">2</td><td>Đang học sâu</td></tr>
+          <tr data-g="Lập trình" data-icon="cplusplus" data-brand="#00599C"><td>2</td><td>C++</td><td><span class="pill">Lập trình</span></td><td class="mono">2</td><td>Nền tảng, giải thuật</td></tr>
+          <tr data-g="Dữ liệu" data-icon="sql" data-brand="#64CCC5"><td>3</td><td>SQL</td><td><span class="pill">Dữ liệu</span></td><td class="mono">3</td><td>Dùng trong dự án ERP</td></tr>
+          <tr data-g="Dữ liệu" data-icon="drizzle" data-brand="#C5F74F"><td>4</td><td>Drizzle ORM</td><td><span class="pill">Dữ liệu</span></td><td class="mono">3</td><td>Dùng trong dự án ERP</td></tr>
+          <tr data-g="Dữ liệu" data-icon="cloudflare" data-brand="#F38020"><td>5</td><td>Cloudflare D1</td><td><span class="pill">Dữ liệu</span></td><td class="mono">3</td><td>Dùng trong dự án ERP</td></tr>
+          <tr data-g="Web" data-icon="html5" data-brand="#E34F26"><td>6</td><td>HTML</td><td><span class="pill">Web</span></td><td class="mono">3</td><td>Dùng làm trang này</td></tr>
+          <tr data-g="Web" data-icon="css" data-brand="#663399"><td>7</td><td>CSS</td><td><span class="pill">Web</span></td><td class="mono">3</td><td>Dùng làm trang này</td></tr>
+          <tr data-g="Web" data-icon="javascript" data-brand="#F7DF1E"><td>8</td><td>JavaScript</td><td><span class="pill">Web</span></td><td class="mono">2</td><td>Cơ bản</td></tr>
+          <tr data-g="Web" data-icon="react" data-brand="#61DAFB"><td>9</td><td>React · Next.js</td><td><span class="pill">Web</span></td><td class="mono">3</td><td>Dùng trong dự án ERP</td></tr>
+          <tr data-g="Web" data-icon="typescript" data-brand="#3178C6"><td>10</td><td>TypeScript</td><td><span class="pill">Web</span></td><td class="mono">3</td><td>Dùng trong dự án ERP</td></tr>
+          <tr data-g="Công cụ" data-icon="git" data-brand="#F03C2E"><td>11</td><td>Git · GitHub</td><td><span class="pill">Công cụ</span></td><td class="mono">3</td><td>Quản lý mã nguồn các dự án</td></tr>
+          <tr data-g="Công cụ" data-icon="office" data-brand="#64CCC5"><td>12</td><td>Microsoft Office</td><td><span class="pill">Công cụ</span></td><td class="mono">4</td><td>MOS Word · Excel · PowerPoint 900+</td></tr>
+          <tr data-g="Công cụ" data-icon="figma" data-brand="#F24E1E"><td>13</td><td>Figma</td><td><span class="pill">Công cụ</span></td><td class="mono">2</td><td>Thiết kế giao diện</td></tr>
+          <tr data-g="Công cụ" data-icon="canva" data-brand="#00C4CC"><td>14</td><td>Canva</td><td><span class="pill">Công cụ</span></td><td class="mono">2</td><td>Thiết kế ấn phẩm</td></tr>
+        </tbody>
+      </table>
+      <div class="meta"><span>Kết quả · nang_luc</span><span id="skillRows">14 dòng</span></div>
+    </section>
+
+    <!-- ===== 05 DỰ ÁN ===== -->
+    <section id="du_an" class="table-block">
+      <p class="label">-- Bảng 05 · Dự án</p>
+      <div class="query"><div class="ln" aria-hidden="true">1<br>2</div><code><span class="kw">SELECT</span> * <span class="kw">FROM</span> du_an
+<span class="kw">WHERE</span> id = <span class="st">1</span>;</code></div>
+      <div class="meta"><span>Kết quả · du_an</span><span>1 dòng</span></div>
+
+      <article class="project result">
+        <div class="gallery">
+          <button type="button" class="shot main" data-cap="Dashboard giám đốc: sản lượng, doanh thu, công nợ, tồn kho"><img src="images/erp-dashboard.jpg" alt="Màn hình Dashboard giám đốc của TOGET Enterprise" loading="lazy"></button>
+          <button type="button" class="shot" data-cap="Quản lý đơn bán sỉ cho đại lý cấp 2"><img src="images/erp-don-ban.jpg" alt="Màn hình quản lý đơn bán sỉ" loading="lazy"></button>
+          <button type="button" class="shot" data-cap="Tạo đơn bán sỉ, kiểm tra hạn mức công nợ của đại lý"><img src="images/erp-tao-don.jpg" alt="Màn hình tạo đơn bán sỉ" loading="lazy"></button>
+        </div>
+
+        <table class="fields">
+          <tr><th scope="row">ten<small>VARCHAR</small></th><td><b class="big">TOGET Enterprise — ERP sản xuất cám &amp; kế toán</b></td></tr>
+          <tr><th scope="row">trang_thai<small>ENUM</small></th><td><span class="status run-s">đang hoàn thiện</span> <span class="mono muted">v0.6.5</span></td></tr>
+          <tr><th scope="row">mo_ta<small>TEXT</small></th><td>Web tiếng Việt cho doanh nghiệp tự phối trộn cám heo, gà, bán sỉ qua đại lý và có nhiều kho. Các quy trình nối liền nhau từ thu mua đến kế toán.</td></tr>
+          <tr><th scope="row">thong_ke<small>JSON</small></th><td>
+            <dl class="numbers">
+              <div><dt>phong_ban</dt><dd data-count="9">9</dd></div>
+              <div><dt>nhom_xuat_excel</dt><dd data-count="13">13</dd></div>
+              <div><dt>bo_kiem_thu</dt><dd data-count="28">28</dd></div>
+            </dl>
+          </td></tr>
+          <tr><th scope="row">diem_noi_bat<small>TEXT[]</small></th><td>
+            <ul class="list">
+              <li>Nhiều kho, theo dõi lô và hạn dùng, xuất kho theo FEFO</li>
+              <li>Phân quyền theo phòng ban, kiểm tra ngay tại API</li>
+              <li>Đăng nhập MFA, sao lưu có mã hóa AES-GCM</li>
+            </ul>
+          </td></tr>
+          <tr><th scope="row">cong_nghe<small>TEXT[]</small></th><td><ul class="tags"><li>Next.js</li><li>React</li><li>TypeScript</li><li>Tailwind</li><li>Drizzle</li><li>Cloudflare D1</li><li>Recharts</li><li>ExcelJS</li></ul></td></tr>
+          <tr><th scope="row">lien_ket<small>URL</small></th><td class="links-row">
+            <a class="btn fill" href="https://github.com/vuhieu020304-creator/toget-erp" target="_blank" rel="noopener">Mã nguồn GitHub ↗</a>
+            <a class="btn line" href="https://cam-viet-erp-demo.vuhieu-020304.chatgpt.site/" target="_blank" rel="noopener">Bản xem trước ↗</a>
+          </td></tr>
+        </table>
       </article>
 
-      <article class="project reveal">
-        <img src="images/project-portfolio.png" alt="Ảnh chụp trang portfolio cá nhân">
-        <div class="body">
-          <p class="status done"><i></i>Hoàn thành</p>
-          <h3>Trang portfolio cá nhân</h3>
-          <p>Chính là trang web bạn đang xem: giới thiệu bản thân, hồ sơ, dự án và form liên hệ, có chế độ sáng / tối, hiệu ứng và bố cục thích ứng nhiều kích thước màn hình.</p>
-          <p class="tech-title">Công nghệ sử dụng</p>
-          <ul class="tags small"><li>HTML5</li><li>CSS3</li><li>JavaScript</li></ul>
-          <a class="proj-link" href="#home">Xem trang này ↗</a>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
+      <!-- Sơ đồ quan hệ giữa các phân hệ của ERP -->
+      <figure class="erd result" aria-labelledby="erdCap">
+        <figcaption id="erdCap" class="label">-- Sơ đồ quan hệ (ERD) rút gọn · luồng dữ liệu trong ERP</figcaption>
+        <ol class="erd-flow">
+          <li><b>thu_mua</b><span>po_id · nha_cung_cap</span></li>
+          <li><b>cong_thuc</b><span>phien_ban · ty_le</span></li>
+          <li><b>san_xuat</b><span>lenh_id · lo_thanh_pham</span></li>
+          <li><b>kho</b><span>lo · han_dung · FEFO</span></li>
+          <li><b>ban_si</b><span>don_id · dai_ly</span></li>
+          <li><b>ke_toan</b><span>but_toan · cong_no</span></li>
+        </ol>
+        <p class="note">Số liệu trong ảnh chụp màn hình là dữ liệu mẫu giả lập.</p>
+      </figure>
 
-<!-- ===== LIÊN HỆ ===== -->
-<section id="contact" aria-labelledby="contactTitle">
-  <div class="wrap">
-    <p class="label reveal">Liên hệ</p>
-    <h2 id="contactTitle" class="display reveal">Kết nối với mình</h2>
+      <div class="query second"><div class="ln" aria-hidden="true">1</div><code><span class="kw">SELECT</span> * <span class="kw">FROM</span> du_an <span class="kw">WHERE</span> id = <span class="st">2</span>;</code></div>
+      <table class="fields single result">
+        <tr><th scope="row">ten<small>VARCHAR</small></th><td><b>Trang hồ sơ vvh_db</b> — chính là trang bạn đang xem</td></tr>
+        <tr><th scope="row">mo_ta<small>TEXT</small></th><td>Trang viết bằng HTML, CSS và JavaScript thuần, trong đó mỗi mục là một bảng dữ liệu: bộ lọc chính là mệnh đề WHERE, lệnh \x chuyển giữa dạng thẻ và dạng bảng, còn form liên hệ là một câu lệnh INSERT. Bạn vào trang qua màn khởi động như terminal, lật ảnh để đổi sáng/tối, và mọi âm thanh đều được tạo bằng Web Audio API. Nền chữ động được chuyển từ Animate UI, còn quỹ đạo, chữ tự gõ và thẻ lật được chuyển từ React Bits.</td></tr>
+      </table>
+    </section>
 
-    <div class="contact-grid">
-      <form id="contactForm" class="card form reveal" novalidate>
+    <!-- ===== 06 HỌC VẤN & CHỨNG CHỈ ===== -->
+    <section id="hoc_van" class="table-block">
+      <p class="label">-- Bảng 06 · Học vấn &amp; chứng chỉ</p>
+      <div class="query"><div class="ln" aria-hidden="true">1</div><code><span class="kw">SELECT</span> loai, ten, ket_qua <span class="kw">FROM</span> hoc_van;</code></div>
+      <div class="card-grid edu-cards result" id="eduCards">
+        <article class="edu frame">
+          <span class="pill">Học vấn</span>
+          <span class="icon-box" data-icon="grad-cap"></span>
+          <b class="card-name">Đại học Giao thông Vận tải · Hệ thống thông tin quản lý</b>
+          <div class="edu-line"><span>tien_do</span><span class="edu-val">Năm <b data-count="2">2</b> / 4</span></div>
+          <div class="edu-bar" role="meter" aria-label="Đại học Giao thông Vận tải, tiến độ năm 2 trên 4" aria-valuenow="2" aria-valuemin="0" aria-valuemax="4" aria-valuetext="Năm 2 trên 4"><i style="--w:50%"></i></div>
+        </article>
+        <article class="edu frame">
+          <span class="pill">Chứng chỉ</span>
+          <span class="icon-box" data-icon="mos-w"></span>
+          <b class="card-name">MOS Word</b>
+          <div class="edu-line"><span>diem</span><span class="edu-val"><b data-count="900" data-suffix="+">900+</b> / 1000</span></div>
+          <div class="edu-bar" role="meter" aria-label="MOS Word, điểm trên 900 trên 1000" aria-valuenow="900" aria-valuemin="0" aria-valuemax="1000" aria-valuetext="Trên 900 trên 1000"><i style="--w:90%"></i></div>
+        </article>
+        <article class="edu frame">
+          <span class="pill">Chứng chỉ</span>
+          <span class="icon-box" data-icon="mos-x"></span>
+          <b class="card-name">MOS Excel</b>
+          <div class="edu-line"><span>diem</span><span class="edu-val"><b data-count="900" data-suffix="+">900+</b> / 1000</span></div>
+          <div class="edu-bar" role="meter" aria-label="MOS Excel, điểm trên 900 trên 1000" aria-valuenow="900" aria-valuemin="0" aria-valuemax="1000" aria-valuetext="Trên 900 trên 1000"><i style="--w:90%"></i></div>
+        </article>
+        <article class="edu frame">
+          <span class="pill">Chứng chỉ</span>
+          <span class="icon-box" data-icon="mos-p"></span>
+          <b class="card-name">MOS PowerPoint</b>
+          <div class="edu-line"><span>diem</span><span class="edu-val"><b data-count="900" data-suffix="+">900+</b> / 1000</span></div>
+          <div class="edu-bar" role="meter" aria-label="MOS PowerPoint, điểm trên 900 trên 1000" aria-valuenow="900" aria-valuemin="0" aria-valuemax="1000" aria-valuetext="Trên 900 trên 1000"><i style="--w:90%"></i></div>
+        </article>
+      </div>
+      <div class="meta"><span>Kết quả · hoc_van</span><span>4 dòng</span></div>
+    </section>
+
+    <!-- ===== 07 LIÊN HỆ: form = câu lệnh INSERT ===== -->
+    <section id="lien_he" class="table-block">
+      <p class="label">-- Bảng 07 · Liên hệ</p>
+      <div class="query"><div class="ln" aria-hidden="true">1</div><code><span class="kw">SELECT</span> kenh, dia_chi <span class="kw">FROM</span> lien_he;</code></div>
+      <table class="grid result contact">
+        <thead><tr><th>id</th><th>kenh<small>VARCHAR</small></th><th>dia_chi<small>URL</small></th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Email</td><td><a href="mailto:vuhieu020304@gmail.com">vuhieu020304@gmail.com ↗</a></td></tr>
+          <tr><td>2</td><td>GitHub</td><td><a href="https://github.com/vuhieu020304-creator" target="_blank" rel="noopener">github.com/vuhieu020304-creator ↗</a></td></tr>
+          <tr><td>3</td><td>Facebook</td><td><a href="https://www.facebook.com/hieubun.vu" target="_blank" rel="noopener">facebook.com/hieubun.vu ↗</a></td></tr>
+        </tbody>
+      </table>
+
+      <p class="label gap">-- Để lại lời nhắn: điền form, câu lệnh bên dưới tự cập nhật</p>
+      <form id="contactForm" class="form" novalidate>
         <div class="field">
-          <label for="name">Họ và tên</label>
+          <label for="name">ho_ten</label>
           <input id="name" name="name" type="text" autocomplete="name" placeholder="Nguyễn Văn A">
           <small class="err" id="err-name" role="alert"></small>
         </div>
         <div class="field">
-          <label for="email">Email</label>
+          <label for="email">email</label>
           <input id="email" name="email" type="email" autocomplete="email" placeholder="ban@example.com">
           <small class="err" id="err-email" role="alert"></small>
         </div>
-        <div class="field">
-          <label for="message">Nội dung</label>
-          <textarea id="message" name="message" rows="5" placeholder="Bạn muốn nhắn gì cho mình?"></textarea>
+        <div class="field full">
+          <label for="message">noi_dung</label>
+          <textarea id="message" name="message" rows="4" placeholder="Bạn muốn nhắn gì cho mình?"></textarea>
           <small class="err" id="err-message" role="alert"></small>
         </div>
-        <button class="btn fill" type="submit">Gửi tin nhắn</button>
-        <p class="ok" id="formOk" role="status"></p>
+        <div class="query full insert" aria-live="polite"><div class="ln" aria-hidden="true">1<br>2</div><code id="insertQuery"></code></div>
+        <div class="full form-foot">
+          <button class="btn fill" type="submit">▶ Thực thi INSERT</button>
+          <p class="ok" id="formOk" role="status"></p>
+        </div>
       </form>
+    </section>
 
-      <div class="links">
-        <a class="link reveal" href="mailto:vuhieu020304@gmail.com"><small>Email</small><b>vuhieu020304@gmail.com</b><span aria-hidden="true">↗</span></a>
-        <a class="link reveal" href="https://github.com/vuhieu020304-creator" target="_blank" rel="noopener"><small>GitHub</small><b>github.com/vuhieu020304-creator</b><span aria-hidden="true">↗</span></a>
-        <a class="link reveal" href="https://www.facebook.com/hieubun.vu" target="_blank" rel="noopener"><small>Facebook</small><b>facebook.com/hieubun.vu</b><span aria-hidden="true">↗</span></a>
-      </div>
-    </div>
-  </div>
-</section>
+    <nav class="pager" id="pager" aria-label="Chuyển bảng">
+      <a id="pagerPrev" href="#orbit"></a>
+      <a id="pagerNext" href="#orbit"></a>
+    </nav>
 
+    <footer class="foot">-- © 2026 Vũ Văn Hiếu · Nhóm 4 · Bài kiểm tra giữa kỳ Lập trình Web<br>-- Âm thanh tạo bằng Web Audio API, không dùng file ngoài<br>-- Hiệu ứng quỹ đạo, chữ tự gõ, thẻ lật: chuyển thể từ <a href="https://reactbits.dev" target="_blank" rel="noopener">React Bits</a> · xem <a href="LICENSES/react-bits.md">giấy phép</a><br>-- Nền Glyph: chuyển thể từ <a href="https://animate-ui.com/docs/backgrounds/glyph" target="_blank" rel="noopener">Animate UI</a> · xem <a href="LICENSES/animate-ui.md">giấy phép</a><br>-- Icon: <a href="https://simpleicons.org" target="_blank" rel="noopener">Simple Icons</a> (CC0), các icon SQL, Office, MOS, Canva và mũ tốt nghiệp tự vẽ</footer>
 </main>
 
-<footer>© 2026 Vũ Văn Hiếu · Nhóm 4 · Bài kiểm tra giữa kỳ Lập trình Web</footer>
-
-<div class="arrows">
-  <button id="up" type="button" aria-label="Lên mục trước">↑</button>
-  <button id="down" type="button" aria-label="Xuống mục sau">↓</button>
+<!-- Thanh trạng thái dưới cùng -->
+<div class="statusbar" aria-hidden="true">
+  <span>vvh_db</span><span id="sbTable">bảng: ho_so</span><span>UTF-8</span><span id="sbMode">chế độ: tối</span><span id="sbQuery" class="sb-query">sẵn sàng</span>
 </div>
 
+<!-- Xem ảnh phóng to -->
+<dialog id="viewer" aria-label="Xem ảnh">
+  <button type="button" class="close" id="viewerClose" aria-label="Đóng">✕</button>
+  <img id="viewerImg" src="" alt="">
+  <p id="viewerCap"></p>
+</dialog>
+
+<script src="js/sound.js"></script>
+<script src="js/glyph-bg.js"></script>
+<script src="js/orbit.js"></script>
+<script src="js/text-type.js"></script>
+<script src="js/flip-card.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
