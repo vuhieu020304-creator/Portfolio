@@ -324,6 +324,88 @@ body[data-view="all"] .pager { display: none; }
 .js .result .edu-bar i { width: 0; }
 .js .result.show .edu-bar i { width: var(--w); transition: width 1.2s cubic-bezier(.33, 1, .68, 1); }   /* easeOutCubic */
 
+/* ===== Sở thích: mỗi sở thích là một bản ghi ===== */
+.hobby-meta { border-radius: 0 0 10px 10px; }
+#hobbyTable { margin-top: 14px; border-top: 1px solid var(--line); }
+.hobbies { display: grid; gap: 16px; margin-top: 16px; }
+.hobby {
+  --h-color: var(--h-dark);
+  padding: 20px 22px 22px; border: 1px solid var(--line); border-radius: 12px;
+  background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--h-color) 7%, transparent), transparent 340px), var(--panel);
+  transition: border-color .2s;
+}
+[data-theme="light"] .hobby { --h-color: var(--h-light); }
+.hobby:hover { border-color: var(--h-color); }
+.js .hobby.result { opacity: 0; transform: translateY(14px); }
+.js .hobby.result.show { opacity: 1; transform: none; transition: opacity .5s, transform .5s, border-color .2s; }
+
+.hobby-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.hobby-id { display: flex; align-items: baseline; gap: 6px; font-family: "IBM Plex Mono", monospace; font-size: 56px; font-weight: 500; line-height: 1; color: var(--h-color); font-variant-numeric: tabular-nums; }
+.hobby-id small { font-size: 13px; font-weight: 400; color: var(--muted); }
+.hobby-note { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+.hobby h3 { font-size: 28px; font-weight: 700; line-height: 1.25; }
+.hobby .status { align-self: start; color: var(--text); background: color-mix(in srgb, var(--h-color) 12%, transparent); }
+.hobby .status::before { color: var(--h-color); }
+
+.hobby-body { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding-top: 20px; align-items: start; }
+.hobby:nth-child(even) .hobby-media { order: 2; }
+.hobby-media { display: grid; gap: 10px; }
+.hobby-sub { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.noi-bat { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.noi-bat small { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--key); overflow-wrap: anywhere; }
+.noi-bat b { font-size: 15px; font-weight: 600; line-height: 1.35; }
+
+/* Ảnh: mở từ trên xuống, có vạch quét, từ mờ sang rõ. Lớp .scan do JS gắn một lần rồi gỡ, nên mở lại bảng không chạy lại. */
+.pic { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 8px; background: var(--row); text-align: left; }
+.pic > img { width: 100%; height: 100%; object-fit: cover; }
+/* Chưa tải chỉ ẩn bằng opacity: ảnh lazy bị clip-path cắt hết thì Chrome coi là ngoài khung nhìn và không tải */
+.js .pic > img { opacity: 0; transition: transform .2s ease-out; }
+.js .pic.loaded > img { opacity: 1; }
+.pic.scan > img { animation: pic-open .9s ease-out both; }
+@keyframes pic-open { from { clip-path: inset(0 0 100% 0); filter: blur(8px) saturate(.3); } to { clip-path: inset(0); filter: none; } }
+.pic.scan::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  border-top: 2px solid var(--h-color);
+  background: linear-gradient(color-mix(in srgb, var(--h-color) 22%, transparent), transparent 48px);
+  animation: pic-scan .9s ease-out both;
+}
+@keyframes pic-scan { from { transform: translateY(0); } to { transform: translateY(100%); } }
+/* Chữ trên ảnh giữ màu cố định ở cả hai giao diện, vì nền là lớp tối đè lên ảnh */
+.pic .icon-box { position: absolute; top: 10px; left: 10px; width: 38px; height: 38px; border-radius: 8px; background: rgb(6 20 27 / .62); color: #fff; backdrop-filter: blur(6px); }
+.pic .icon-box i, .pic .icon-box img { width: 22px; height: 22px; }
+.pic .icon-box img { filter: invert(1); }
+.pic-tag { position: absolute; top: 10px; right: 10px; padding: 3px 8px; border-radius: 4px; background: rgb(6 20 27 / .72); color: #fff; font-family: "IBM Plex Mono", monospace; font-size: 11px; white-space: nowrap; }
+.pic-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 26px 12px 9px; background: linear-gradient(transparent, rgb(6 20 27 / .9) 58%); color: #fff; font-family: "IBM Plex Mono", monospace; font-size: 12px; line-height: 1.4; }
+
+.travel { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.travel .pic:first-child { grid-column: 1 / -1; }
+.travel .pic:not(:first-child) { aspect-ratio: 1; }
+.travel .pic:not(:first-child) .pic-cap { padding: 22px 8px 7px; font-size: 11px; }
+
+.hobby-info { display: grid; gap: 14px; min-width: 0; }
+.col-name { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--key); }
+.col-name small { margin-left: 4px; font-size: 11px; color: var(--muted); }
+.hobby-info > .col-name { margin-bottom: -10px; }
+.attrs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.attrs div { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.attrs dt { font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--key); overflow-wrap: anywhere; }
+.attrs dd { font-size: 14px; font-weight: 600; line-height: 1.4; }
+
+/* Bảng con danh_sach_doc */
+.reading { display: grid; gap: 4px; }
+.reading-q { font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.book-table { width: 100%; margin-top: 6px; border-collapse: collapse; font-size: 13px; line-height: 1.4; border: 1px solid var(--line); }
+.book-table th { padding: 6px 8px; text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 11px; font-weight: 500; color: var(--key); background: var(--row); border-bottom: 1px solid var(--line); }
+.book-table td { padding: 7px 8px; vertical-align: top; border-bottom: 1px solid var(--line); }
+.book-table tbody tr:last-child td { border-bottom: 0; }
+
+/* Mảng kiểu PostgreSQL: dấu ngoặc và dấu phẩy nhạt, mỗi phần tử một chip */
+.pg-array { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 4px; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
+.pg-array .col-name { margin-right: 4px; }
+.pg-item { display: inline-flex; align-items: center; gap: 4px; }
+.pg-array i { font-style: normal; color: var(--muted); }
+.chip { padding: 2px 8px; border: 1px solid var(--line); border-radius: 4px; }
+
 /* ===== Dự án ===== */
 .project { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; padding: 24px; background: var(--panel); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; }
 .project .fields tr:first-child th, .project .fields tr:first-child td { border-top: 0; padding-top: 0; }
@@ -390,6 +472,8 @@ body { padding-bottom: 26px; }
   .project { grid-template-columns: minmax(0, 1fr); }
   .erd-flow { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .erd-flow li:nth-child(3)::after { content: none; }
+  .attrs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .attrs div:last-child { grid-column: 1 / -1; }
 }
 
 @media (max-width: 720px) {
@@ -398,6 +482,17 @@ body { padding-bottom: 26px; }
   #skills th small { display: none; }   /* bảng 4 cột: bỏ kiểu dữ liệu để không tràn ngang ở 390px */
   .card-grid { gap: 8px; padding: 10px; }
   .skill { padding: 14px 12px; }
+  .hobby { padding: 14px; }
+  .hobby-head { grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; }
+  .hobby-id { font-size: 38px; }
+  .hobby-id small { font-size: 11px; }
+  .hobby h3 { font-size: 22px; }
+  .hobby .status { grid-column: 2; justify-self: start; }
+  .hobby-body { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-top: 14px; }
+  .hobby:nth-child(even) .hobby-media { order: 0; }   /* ảnh luôn nằm trên */
+  .travel { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .travel .pic:first-child { grid-column: auto; aspect-ratio: 1; }
+  .travel .pic-tag { display: none; }   /* ô ảnh 2×2 không đủ chỗ cho cả ô icon và nhãn */
 }
 
 /* ===== Điện thoại ===== */
@@ -553,6 +648,9 @@ html:not(.glyph-on) .orbit-screen, html:not(.glyph-on) .boot { background-image:
   .js .result tr, .js .result .erd-flow li, .js .result .skill, .js .result .edu { opacity: 1; transform: none; }
   .meter i.on::after { transform: none; }
   .js .result .edu-bar i { width: var(--w); }
+  .js .hobby.result { opacity: 1; transform: none; }
+  .js .pic > img { opacity: 1; }
+  .pic.scan::after { content: none; }
 }
 
 /* Thanh trên trên điện thoại: không xuống dòng */

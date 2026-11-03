@@ -130,7 +130,7 @@ function replayResults() { results.forEach(replay); }
 /* ---------- 3b. Quỹ đạo các bảng ---------- */
 const TABLES = [
   { id: 'ho_so',    title: 'Giới thiệu', rows: 1, cols: 'ho_ten · tuyen_ngon' },
-  { id: 'so_thich', title: 'Sở thích',   rows: 3, cols: 'ten · chi_tiet' },
+  { id: 'so_thich', title: 'Sở thích',   rows: 5, cols: 'ten · nen_tang' },
   { id: 'muc_tieu', title: 'Mục tiêu',   rows: 3, cols: 'thoi_han · trang_thai' },
   { id: 'nang_luc', title: 'Năng lực',   rows: 14, cols: 'ky_nang · cap_do' },
   { id: 'du_an',    title: 'Dự án',      rows: 2, cols: 'ten · cong_nghe' },
@@ -315,36 +315,73 @@ $$('.where button[data-g]').forEach(btn => btn.addEventListener('click', () => {
   writeSkillQuery(group);
   $('#skillRows').textContent = skillRows.filter(tr => !tr.hidden).length + ' dòng';
   indexSkills();
-  if (skillView === 'cards') replay(skillCards);
-  const shown = skillView === 'cards' ? skillCards : skillsTable;
+  if (skillView() === 'cards') replay(skillCards);
+  const shown = skillView() === 'cards' ? skillCards : skillsTable;
   shown.classList.remove('flash'); void shown.offsetWidth; shown.classList.add('flash');
 }));
 
-// Nút \x: chuyển dạng thẻ / dạng bảng, như lệnh bật tắt hiển thị mở rộng của psql
-const VIEW_KEY = 'vvh_skill_view';
-const viewBtn = $('#skillView');
-let skillView = 'cards', viewTimer;
-try { if (localStorage.getItem(VIEW_KEY) === 'table') skillView = 'table'; } catch (e) {}
-function showSkillView() {
-  skillCards.hidden = skillView !== 'cards';
-  skillsTable.hidden = skillView !== 'table';
-  $$('[data-v]', viewBtn).forEach(s => s.classList.toggle('on', s.dataset.v === skillView));
-  viewBtn.setAttribute('aria-label', 'Chuyển dạng hiển thị, đang là ' + (skillView === 'cards' ? 'dạng thẻ' : 'dạng bảng'));
+// Nút \x: chuyển dạng thẻ / dạng bảng, như lệnh bật tắt hiển thị mở rộng của psql. Mỗi mục nhớ lựa chọn riêng.
+function setupViewToggle(viewBtn, key, cards, table) {
+  let view = 'cards', viewTimer;
+  try { if (localStorage.getItem(key) === 'table') view = 'table'; } catch (e) {}
+  function show() {
+    cards.hidden = view !== 'cards';
+    table.hidden = view !== 'table';
+    $$('[data-v]', viewBtn).forEach(s => s.classList.toggle('on', s.dataset.v === view));
+    viewBtn.setAttribute('aria-label', 'Chuyển dạng hiển thị, đang là ' + (view === 'cards' ? 'dạng thẻ' : 'dạng bảng'));
+  }
+  show();
+  viewBtn.addEventListener('click', () => {
+    clearTimeout(tickTimer);
+    (view === 'cards' ? cards : table).classList.add('view-out');
+    view = view === 'cards' ? 'table' : 'cards';
+    SFX.play('tab');
+    try { localStorage.setItem(key, view); } catch (e) {}
+    clearTimeout(viewTimer);
+    viewTimer = setTimeout(() => {
+      cards.classList.remove('view-out');
+      table.classList.remove('view-out');
+      show();
+      const shown = view === 'cards' ? cards : table;
+      (shown.matches('.result') ? [shown] : $$('.result', shown)).forEach(replay);   // Sở thích: mỗi bản ghi tự hiện khi cuộn tới
+    }, reduceMotion ? 0 : 200);
+  });
+  return () => view;
 }
-showSkillView();
-viewBtn.addEventListener('click', () => {
-  clearTimeout(tickTimer);
-  (skillView === 'cards' ? skillCards : skillsTable).classList.add('view-out');
-  skillView = skillView === 'cards' ? 'table' : 'cards';
-  SFX.play('tab');
-  try { localStorage.setItem(VIEW_KEY, skillView); } catch (e) {}
-  clearTimeout(viewTimer);
-  viewTimer = setTimeout(() => {
-    skillCards.classList.remove('view-out');
-    skillsTable.classList.remove('view-out');
-    showSkillView();
-    replay(skillView === 'cards' ? skillCards : skillsTable);
-  }, reduceMotion ? 0 : 200);
+const skillView = setupViewToggle($('#skillView'), 'vvh_skill_view', skillCards, skillsTable);
+setupViewToggle($('#hobbyView'), 'vvh_hobby_view', $('#hobbyCards'), $('#hobbyTable'));
+
+/* ---------- 4c. Sở thích: ảnh hiện như đang tải dữ liệu, chỉ chạy 1 lần ---------- */
+const LOAD_MS = 900;   // trùng thời gian hoạt ảnh pic-open, pic-scan trong CSS
+const picIO = new IntersectionObserver(entries => entries.forEach(e => {
+  if (!e.isIntersecting) return;
+  picIO.unobserve(e.target);
+  const pic = e.target, img = $('img', pic), tag = $('.pic-tag', pic);
+  const finish = failed => {
+    pic.classList.add('loaded', 'scan');
+    setTimeout(() => {
+      pic.classList.remove('scan');
+      if (tag) tag.textContent = 'anh_minh_hoa · ' + (failed ? 'lỗi tải' : '200 OK');
+    }, reduceMotion ? 0 : LOAD_MS);
+  };
+  if (tag) tag.textContent = 'loading…';
+  if (img.complete) finish(!img.naturalWidth);
+  else {
+    img.addEventListener('load', () => finish(false), { once: true });
+    img.addEventListener('error', () => finish(true), { once: true });
+  }
+}), { threshold: 0.15 });
+$$('.pic').forEach(pic => picIO.observe(pic));
+
+// Rê chuột: ảnh phóng 1.04 và nghiêng tối đa 4 độ, chỉ khi có chuột
+if (!reduceMotion && matchMedia('(pointer: fine)').matches) $$('.pic').forEach(pic => {
+  const img = $('img', pic);
+  pic.addEventListener('pointermove', e => {
+    const r = pic.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    img.style.transform = `perspective(900px) rotateX(${(-y * 8).toFixed(2)}deg) rotateY(${(x * 8).toFixed(2)}deg) scale(1.04)`;
+  });
+  pic.addEventListener('pointerleave', () => { img.style.transform = ''; });
 });
 
 /* ---------- 4b. Học vấn: icon, thanh chạy bằng CSS, số chạy cùng lúc ---------- */
@@ -353,7 +390,7 @@ $('#eduCards').addEventListener('reveal', e => countUp(e.target, 1200));
 
 /* ---------- 5. Xem ảnh phóng to ---------- */
 const viewer = $('#viewer');
-$$('.shot').forEach(shot => shot.addEventListener('click', () => {
+$$('.shot, .pic').forEach(shot => shot.addEventListener('click', () => {
   const img = $('img', shot);
   $('#viewerImg').src = img.src;
   $('#viewerImg').alt = img.alt;
@@ -450,7 +487,7 @@ document.addEventListener('click', e => {
     '$ psql -h localhost -d <em>vvh_db</em> -U khach',
     'Đang kết nối tới máy chủ ............ <b>OK</b>',
     'Xác thực người dùng "khach" ......... <b>OK</b>',
-    'Nạp lược đồ: 7 bảng, 30 dòng ........ <b>OK</b>',
+    'Nạp lược đồ: 7 bảng, 32 dòng ........ <b>OK</b>',
     'Dựng quỹ đạo các bảng ............... <b>OK</b>',
     '<em>vvh_db=#</em> sẵn sàng.'
   ];

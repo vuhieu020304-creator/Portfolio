@@ -65,7 +65,7 @@
   <div class="orbit-center" id="orbitCenter">
     <p class="center-db">database · vvh_db</p>
     <h1>Vũ Văn <span>Hiếu</span></h1>
-    <p class="center-sub">-- 7 bảng · 30 dòng</p>
+    <p class="center-sub">-- 7 bảng · 32 dòng</p>
   </div>
   <div class="orbit-stage" id="orbitStage"></div>
   <div class="orbit-foot">
@@ -126,16 +126,201 @@
     <!-- ===== 02 SỞ THÍCH ===== -->
     <section id="so_thich" class="table-block">
       <p class="label">-- Bảng 02 · Sở thích</p>
-      <div class="query"><div class="ln" aria-hidden="true">1</div><code><span class="kw">SELECT</span> ten, chi_tiet <span class="kw">FROM</span> so_thich;</code></div>
-      <table class="grid result">
+      <div class="query"><div class="ln" aria-hidden="true">1</div><code><span class="kw">SELECT</span> * <span class="kw">FROM</span> so_thich;</code></div>
+      <div class="where">
+        <span>-- 5 dòng · bấm ảnh để phóng to</span>
+        <button type="button" class="view-toggle" id="hobbyView"><b>\x</b><span data-v="cards">dạng thẻ</span> / <span data-v="table">dạng bảng</span></button>
+      </div>
+      <div class="meta hobby-meta"><span>Kết quả · so_thich · 5 dòng</span></div>
+
+      <div class="hobbies" id="hobbyCards">
+        <article class="hobby result" style="--h-dark:#64CCC5;--h-light:#176B87">
+          <header class="hobby-head">
+            <p class="hobby-id"><small>id</small>01</p>
+            <div><p class="hobby-note">-- nghe mỗi ngày trên Spotify</p><h3>Âm nhạc</h3></div>
+            <span class="status">đang phát</span>
+          </header>
+          <div class="hobby-body">
+            <div class="hobby-media">
+              <button type="button" class="pic" data-cap="-- nhạc là nền cho mọi buổi code">
+                <img src="images/so_thich/am-nhac-1.webp" width="1400" height="1869" alt="Tai nghe màu đỏ trên mặt bàn tối, ánh sáng đỏ hắt thành vệt" loading="lazy" decoding="async" style="object-position:50% 72%">
+                <span class="icon-box" data-icon="tai-nghe"></span><span class="pic-tag">anh_minh_hoa</span>
+                <span class="pic-cap">-- nhạc là nền cho mọi buổi code</span>
+              </button>
+              <div class="hobby-sub">
+                <button type="button" class="pic" data-cap="anh_phu · Âm nhạc"><img src="images/so_thich/am-nhac-2.webp" width="800" height="533" alt="Ảnh đen trắng một người chơi guitar điện trên sân khấu dưới ánh đèn" loading="lazy" decoding="async"></button>
+                <p class="noi-bat"><small>noi_bat.the_loai</small><b>Rock · Pop rock</b></p>
+              </div>
+            </div>
+            <div class="hobby-info">
+              <p class="col-name">mo_ta <small>TEXT</small></p>
+              <p class="hobby-desc">Âm nhạc là thứ mình bật lên khi học, khi code và cả lúc nghỉ ngơi. Mình nghe khá nhiều thể loại, từ rock, pop rock, pop ballad đến rap Việt.</p>
+              <dl class="attrs">
+                <div><dt>nen_tang</dt><dd>Spotify</dd></div>
+                <div><dt>the_loai</dt><dd>Rock · Pop ballad · Rap Việt</dd></div>
+                <div><dt>nghe_si_yeu_thich</dt><dd>HIEUTHUHAI · Low G</dd></div>
+              </dl>
+              <p class="pg-array"><span class="col-name">TEXT[] =</span><span class="pg-item"><i>{</i><span class="chip">'spotify'</span><i>,</i></span><span class="pg-item"><span class="chip">'rap viet'</span><i>,</i></span><span class="pg-item"><span class="chip">'rock'</span><i>,</i></span><span class="pg-item"><span class="chip">'pop ballad'</span><i>,</i></span><span class="pg-item"><span class="chip">'nhac viet'</span><i>}</i></span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="hobby result" style="--h-dark:#A5B4FC;--h-light:#4F46E5">
+          <header class="hobby-head">
+            <p class="hobby-id"><small>id</small>02</p>
+            <div><p class="hobby-note">-- chơi cùng bạn bè</p><h3>Game</h3></div>
+            <span class="status">online</span>
+          </header>
+          <div class="hobby-body">
+            <div class="hobby-media">
+              <button type="button" class="pic" data-cap="-- thắng hay thua thì vẫn chơi cùng nhau">
+                <img src="images/so_thich/game-1.webp" width="1400" height="1400" alt="Góc bàn máy tính với màn hình, bàn phím, loa và thùng máy đèn xanh" loading="lazy" decoding="async" style="object-position:50% 45%">
+                <span class="icon-box" data-icon="tay-cam"></span><span class="pic-tag">anh_minh_hoa</span>
+                <span class="pic-cap">-- thắng hay thua thì vẫn chơi cùng nhau</span>
+              </button>
+              <div class="hobby-sub">
+                <button type="button" class="pic" data-cap="anh_phu · Game"><img src="images/so_thich/game-2.webp" width="800" height="1067" alt="Cận cảnh bàn phím có đèn nền hồng và xanh trong bóng tối" loading="lazy" decoding="async"></button>
+                <p class="noi-bat"><small>noi_bat.ky_nang</small><b>Phối hợp đồng đội</b></p>
+              </div>
+            </div>
+            <div class="hobby-info">
+              <p class="col-name">mo_ta <small>TEXT</small></p>
+              <p class="hobby-desc">Mình chơi game cùng bạn bè: xây dựng và sinh tồn trong Minecraft, phối hợp đồng đội trong Delta Force. Với mình, game là cách giữ kết nối với bạn bè và rèn phản xạ, khả năng phối hợp khi làm việc nhóm.</p>
+              <dl class="attrs">
+                <div><dt>tua_game</dt><dd>Minecraft · Delta Force</dd></div>
+                <div><dt>choi_cung</dt><dd>Bạn bè</dd></div>
+                <div><dt>nen_tang</dt><dd>PC</dd></div>
+              </dl>
+              <p class="pg-array"><span class="col-name">TEXT[] =</span><span class="pg-item"><i>{</i><span class="chip">'minecraft'</span><i>,</i></span><span class="pg-item"><span class="chip">'delta force'</span><i>,</i></span><span class="pg-item"><span class="chip">'choi cung ban'</span><i>,</i></span><span class="pg-item"><span class="chip">'pc gaming'</span><i>}</i></span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="hobby result" style="--h-dark:#FBBF24;--h-light:#B45309">
+          <header class="hobby-head">
+            <p class="hobby-id"><small>id</small>03</p>
+            <div><p class="hobby-note">-- quản lý và trí tuệ nhân tạo</p><h3>Đọc sách</h3></div>
+            <span class="status">đang đọc</span>
+          </header>
+          <div class="hobby-body">
+            <div class="hobby-media">
+              <button type="button" class="pic" data-cap="-- mỗi trang sách là một dòng dữ liệu mới">
+                <img src="images/so_thich/doc-sach-1.webp" width="1400" height="700" alt="Chụp từ trên xuống: cuốn sách Read Me, bình kim loại và tách cà phê trên bàn gỗ tối" loading="lazy" decoding="async">
+                <span class="icon-box" data-icon="sach-mo"></span><span class="pic-tag">anh_minh_hoa</span>
+                <span class="pic-cap">-- mỗi trang sách là một dòng dữ liệu mới</span>
+              </button>
+              <div class="hobby-sub">
+                <p class="noi-bat"><small>noi_bat.dang_doc</small><b>Quản lý &amp; AI</b></p>
+              </div>
+            </div>
+            <div class="hobby-info">
+              <p class="col-name">mo_ta <small>TEXT</small></p>
+              <p class="hobby-desc">Mình thích đọc về quản lý và trí tuệ nhân tạo. Một bên giúp mình hiểu cách con người và tổ chức vận hành, một bên giúp mình hiểu công nghệ đang thay đổi công việc ra sao, cả hai đều cần cho một Data Engineer.</p>
+              <dl class="attrs">
+                <div><dt>chu_de</dt><dd>Quản lý · AI · Giao tiếp</dd></div>
+                <div><dt>muc_dich</dt><dd>Học cách quản lý và làm việc với AI</dd></div>
+                <div><dt>so_sach</dt><dd>5 cuốn trong danh sách</dd></div>
+              </dl>
+              <div class="reading">
+                <p class="reading-q"><code><span class="kw">SELECT</span> ten, tac_gia, chu_de <span class="kw">FROM</span> danh_sach_doc;</code></p>
+                <p class="hobby-note">-- sách đang đọc và muốn đọc</p>
+                <table class="book-table">
+                  <thead><tr><th>ten</th><th>tac_gia</th><th>chu_de</th></tr></thead>
+                  <tbody>
+                    <tr><td>The Effective Executive (Nhà quản trị thành công)</td><td>Peter Drucker</td><td>Quản lý</td></tr>
+                    <tr><td>Good to Great (Từ tốt đến vĩ đại)</td><td>Jim Collins</td><td>Quản lý</td></tr>
+                    <tr><td>AI Superpowers (Siêu cường AI)</td><td>Kai-Fu Lee</td><td>AI</td></tr>
+                    <tr><td>Co-Intelligence</td><td>Ethan Mollick</td><td>AI</td></tr>
+                    <tr><td>How to Win Friends and Influence People (Đắc nhân tâm)</td><td>Dale Carnegie</td><td>Giao tiếp</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="pg-array"><span class="col-name">TEXT[] =</span><span class="pg-item"><i>{</i><span class="chip">'quan ly'</span><i>,</i></span><span class="pg-item"><span class="chip">'ai'</span><i>,</i></span><span class="pg-item"><span class="chip">'giao tiep'</span><i>,</i></span><span class="pg-item"><span class="chip">'phat trien ban than'</span><i>}</i></span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="hobby result" style="--h-dark:#6EE7B7;--h-light:#15803D">
+          <header class="hobby-head">
+            <p class="hobby-id"><small>id</small>04</p>
+            <div><p class="hobby-note">-- máy chủ AI local &amp; PC cấu hình cao</p><h3>Phần cứng AI</h3></div>
+            <span class="status">đang tìm hiểu</span>
+          </header>
+          <div class="hobby-body">
+            <div class="hobby-media">
+              <button type="button" class="pic" data-cap="-- dữ liệu cần chỗ chạy, AI cần phần cứng">
+                <img src="images/so_thich/phan-cung-1.webp" width="1400" height="932" alt="Cận cảnh các máy chủ xếp trong tủ rack dưới ánh sáng xanh" loading="lazy" decoding="async">
+                <span class="icon-box" data-icon="con-chip"></span><span class="pic-tag">anh_minh_hoa</span>
+                <span class="pic-cap">-- dữ liệu cần chỗ chạy, AI cần phần cứng</span>
+              </button>
+              <div class="hobby-sub">
+                <button type="button" class="pic" data-cap="anh_phu · Phần cứng AI"><img src="images/so_thich/phan-cung-2.webp" width="800" height="450" alt="Cận cảnh card đồ họa, RAM và dây cáp bên trong một bộ PC" loading="lazy" decoding="async"></button>
+                <p class="noi-bat"><small>noi_bat.tu_khoa</small><b>Chạy mô hình AI tại chỗ</b></p>
+              </div>
+            </div>
+            <div class="hobby-info">
+              <p class="col-name">mo_ta <small>TEXT</small></p>
+              <p class="hobby-desc">Mình quan tâm đến phần cứng để chạy AI ngay trên máy (máy chủ AI local) và những bộ PC cấu hình mạnh để chơi game. Mình tìm hiểu về GPU, VRAM, tản nhiệt và cách chọn linh kiện sao cho cân bằng giữa hiệu năng và chi phí.</p>
+              <dl class="attrs">
+                <div><dt>quan_tam</dt><dd>Máy chủ AI local</dd></div>
+                <div><dt>linh_kien</dt><dd>GPU · VRAM · Tản nhiệt</dd></div>
+                <div><dt>huong_tim_hieu</dt><dd>PC gaming cấu hình cao</dd></div>
+              </dl>
+              <p class="pg-array"><span class="col-name">TEXT[] =</span><span class="pg-item"><i>{</i><span class="chip">'local ai'</span><i>,</i></span><span class="pg-item"><span class="chip">'gpu'</span><i>,</i></span><span class="pg-item"><span class="chip">'server'</span><i>,</i></span><span class="pg-item"><span class="chip">'pc build'</span><i>,</i></span><span class="pg-item"><span class="chip">'hardware'</span><i>}</i></span></p>
+            </div>
+          </div>
+        </article>
+
+        <article class="hobby result" style="--h-dark:#F9A8D4;--h-light:#BE185D">
+          <header class="hobby-head">
+            <p class="hobby-id"><small>id</small>05</p>
+            <div><p class="hobby-note">-- đi để thấy những điều mới</p><h3>Du lịch khám phá</h3></div>
+            <span class="status">sẵn sàng xuất phát</span>
+          </header>
+          <div class="hobby-body">
+            <div class="hobby-media travel">
+              <button type="button" class="pic" data-cap="dia_diem = 'Đà Lạt'">
+                <img src="images/so_thich/du-lich-da-lat.webp" width="800" height="600" alt="Đồi thông và dãy núi xa dưới bầu trời xanh ở Đà Lạt" loading="lazy" decoding="async">
+                <span class="icon-box" data-icon="la-ban"></span><span class="pic-tag">anh_minh_hoa</span>
+                <span class="pic-cap">dia_diem = 'Đà Lạt'</span>
+              </button>
+              <button type="button" class="pic" data-cap="dia_diem = 'Sa Pa'">
+                <img src="images/so_thich/du-lich-sa-pa.webp" width="800" height="450" alt="Ruộng bậc thang, nhà và dòng suối đá nhìn từ trên cao ở Sa Pa" loading="lazy" decoding="async">
+                <span class="pic-cap">dia_diem = 'Sa Pa'</span>
+              </button>
+              <button type="button" class="pic" data-cap="dia_diem = 'Nhật Bản'">
+                <img src="images/so_thich/du-lich-nhat-ban.webp" width="800" height="1067" alt="Tòa tháp nhiều tầng bên cành hoa anh đào ở Nhật Bản" loading="lazy" decoding="async" style="object-position:50% 35%">
+                <span class="pic-cap">dia_diem = 'Nhật Bản'</span>
+              </button>
+              <button type="button" class="pic" data-cap="dia_diem = 'Trung Quốc'">
+                <img src="images/so_thich/du-lich-trung-quoc.webp" width="800" height="1067" alt="Vách núi đá dựng đứng phủ cây xanh dưới bầu trời nhiều mây ở Trung Quốc" loading="lazy" decoding="async" style="object-position:50% 90%">
+                <span class="pic-cap">dia_diem = 'Trung Quốc'</span>
+              </button>
+            </div>
+            <div class="hobby-info">
+              <p class="col-name">mo_ta <small>TEXT</small></p>
+              <p class="hobby-desc">Mình thích đi để khám phá những vùng đất mới: không khí se lạnh và đồi thông ở Đà Lạt, ruộng bậc thang Sa Pa, mùa hoa anh đào ở Nhật Bản và núi non hùng vĩ ở Trung Quốc.</p>
+              <dl class="attrs">
+                <div><dt>trong_nuoc</dt><dd>Đà Lạt · Sa Pa</dd></div>
+                <div><dt>nuoc_ngoai</dt><dd>Nhật Bản · Trung Quốc</dd></div>
+                <div><dt>phong_cach</dt><dd>Khám phá thiên nhiên &amp; văn hóa</dd></div>
+              </dl>
+              <p class="pg-array"><span class="col-name">TEXT[] =</span><span class="pg-item"><i>{</i><span class="chip">'da lat'</span><i>,</i></span><span class="pg-item"><span class="chip">'sa pa'</span><i>,</i></span><span class="pg-item"><span class="chip">'nhat ban'</span><i>,</i></span><span class="pg-item"><span class="chip">'trung quoc'</span><i>,</i></span><span class="pg-item"><span class="chip">'kham pha'</span><i>}</i></span></p>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <table class="grid result" id="hobbyTable">
         <thead><tr><th>id</th><th>ten<small>VARCHAR</small></th><th>chi_tiet<small>TEXT</small></th></tr></thead>
         <tbody>
-          <tr><td>1</td><td>Nghe nhạc</td><td>Rock · Pop rock · Pop ballad · Nhạc Việt</td></tr>
-          <tr><td>2</td><td>Chơi game</td><td>Minecraft · Delta Force</td></tr>
-          <tr><td>3</td><td>Đọc sách</td><td>Sách về kỹ năng giao tiếp và trí tuệ nhân tạo</td></tr>
+          <tr><td>1</td><td>Âm nhạc</td><td>Rock · Pop rock · Pop ballad · Rap Việt</td></tr>
+          <tr><td>2</td><td>Game</td><td>Minecraft · Delta Force</td></tr>
+          <tr><td>3</td><td>Đọc sách</td><td>Quản lý · AI · Giao tiếp</td></tr>
+          <tr><td>4</td><td>Phần cứng AI</td><td>Máy chủ AI local · GPU · VRAM · Tản nhiệt</td></tr>
+          <tr><td>5</td><td>Du lịch khám phá</td><td>Đà Lạt · Sa Pa · Nhật Bản · Trung Quốc</td></tr>
         </tbody>
       </table>
-      <div class="meta"><span>Kết quả · so_thich</span><span>3 dòng</span></div>
     </section>
 
     <!-- ===== 03 MỤC TIÊU ===== -->
@@ -333,7 +518,7 @@
       <a id="pagerNext" href="#orbit"></a>
     </nav>
 
-    <footer class="foot">-- © 2026 Vũ Văn Hiếu · Nhóm 4 · Bài kiểm tra giữa kỳ Lập trình Web<br>-- Âm thanh tạo bằng Web Audio API, không dùng file ngoài<br>-- Hiệu ứng quỹ đạo, chữ tự gõ, thẻ lật: chuyển thể từ <a href="https://reactbits.dev" target="_blank" rel="noopener">React Bits</a> · xem <a href="LICENSES/react-bits.md">giấy phép</a><br>-- Nền Glyph: chuyển thể từ <a href="https://animate-ui.com/docs/backgrounds/glyph" target="_blank" rel="noopener">Animate UI</a> · xem <a href="LICENSES/animate-ui.md">giấy phép</a><br>-- Icon: <a href="https://simpleicons.org" target="_blank" rel="noopener">Simple Icons</a> (CC0), các icon SQL, Office, MOS, Canva và mũ tốt nghiệp tự vẽ</footer>
+    <footer class="foot">-- © 2026 Vũ Văn Hiếu · Nhóm 4 · Bài kiểm tra giữa kỳ Lập trình Web<br>-- Âm thanh tạo bằng Web Audio API, không dùng file ngoài<br>-- Hiệu ứng quỹ đạo, chữ tự gõ, thẻ lật: chuyển thể từ <a href="https://reactbits.dev" target="_blank" rel="noopener">React Bits</a> · xem <a href="LICENSES/react-bits.md">giấy phép</a><br>-- Nền Glyph: chuyển thể từ <a href="https://animate-ui.com/docs/backgrounds/glyph" target="_blank" rel="noopener">Animate UI</a> · xem <a href="LICENSES/animate-ui.md">giấy phép</a><br>-- Icon: <a href="https://simpleicons.org" target="_blank" rel="noopener">Simple Icons</a> (CC0), các icon SQL, Office, MOS, Canva, mũ tốt nghiệp và mục Sở thích tự vẽ<br>-- Ảnh minh họa: Unsplash &amp; Pexels · xem <a href="LICENSES/anh-minh-hoa.md">danh sách</a></footer>
 </main>
 
 <!-- Thanh trạng thái dưới cùng -->
