@@ -257,8 +257,10 @@ body[data-view="all"] .pager { display: none; }
 .status { font-family: "IBM Plex Mono", monospace; font-size: 11px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
 .status::before { content: "● "; }
 /* pha thêm --text để chữ vẫn đạt 4.5:1 trên nền tô nhạt cùng màu */
-.status.run-s { color: color-mix(in srgb, var(--ok) 85%, var(--text)); background: color-mix(in srgb, var(--ok) 12%, transparent); }
-.status.plan { color: color-mix(in srgb, var(--warn) 85%, var(--text)); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.status.run-s, .status.st-success { color: color-mix(in srgb, var(--ok) 85%, var(--text)); background: color-mix(in srgb, var(--ok) 12%, transparent); }
+.status.plan, .status.st-running { color: color-mix(in srgb, var(--warn) 85%, var(--text)); background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.status.st-queued { color: var(--muted); background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.status.st-queued::before { content: "○ "; }
 
 /* WHERE = bộ lọc */
 .where { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 16px; background: var(--panel); border: 1px solid var(--line); border-top: 0; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
@@ -405,6 +407,103 @@ body[data-view="all"] .pager { display: none; }
 .pg-item { display: inline-flex; align-items: center; gap: 4px; }
 .pg-array i { font-style: normal; color: var(--muted); }
 .chip { padding: 2px 8px; border: 1px solid var(--line); border-radius: 4px; }
+
+/* ===== Mục tiêu: lộ trình vẽ như một DAG ===== */
+.dag-legend { display: inline-flex; flex-wrap: wrap; gap: 2px 12px; }
+.dag-legend i { font-style: normal; }
+.s-success { color: var(--ok); }
+.s-running { color: var(--warn); }
+.s-queued { color: var(--muted); }
+.dag-wrap { padding: 16px; background: var(--panel); border: 1px solid var(--line); border-top: 0; }
+
+.dag-run { margin-bottom: 18px; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+.dag-run b { font-weight: 500; color: var(--text); }
+.dag-cells { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 2px; margin-top: 6px; }
+.dag-cells i { height: 6px; background: var(--line); }
+.dag-cells i:first-child { border-radius: 3px 0 0 3px; }
+.dag-cells i:last-child { border-radius: 0 3px 3px 0; }
+.dag-cells i[data-state="success"] { background: var(--ok); }
+.dag-cells i[data-state="running"] { background: var(--warn); }
+
+/* Nhánh chính là hàng trên, nhánh song song là hàng giữa, đích đến là băng ngang dưới cùng; khoảng trống giữa các hàng dành cho trục nối */
+.dag { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 64px 26px; }
+.dag-par { display: contents; }
+.dag-par > p { display: none; }
+.dag-edges { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.dag-line { fill: none; stroke: var(--line); stroke-width: 1.25; stroke-dashoffset: var(--len); }
+.dag-line.live { stroke: var(--accent); stroke-width: 1.5; }
+.result.show .dag-line { stroke-dashoffset: 0; transition: stroke-dashoffset .45s ease-out; transition-delay: calc(var(--i) * 110ms); }
+.dag-arrow { fill: var(--line); }
+.dag-arrow.live { fill: var(--accent); }
+.dag-packets { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.dag:not(.flowing) .dag-packets { display: none; }
+.dag-packet { position: absolute; top: -3px; left: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); will-change: transform; }
+
+.task {
+  --state: var(--muted);
+  position: relative; z-index: 1; grid-column: var(--c); grid-row: var(--r);
+  display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 9px 20px 9px 9px;
+  background: var(--bg); text-align: left; line-height: 1.3;
+  border: 1px solid var(--line); border-left: 3px solid var(--state); border-radius: 6px;
+  transition: opacity .2s, background .2s, box-shadow .2s, border-color .2s;
+}
+.task[data-state="success"] { --state: var(--ok); }
+.task[data-state="running"] { --state: var(--warn); }
+.task[data-state="queued"] { border-style: dashed; }
+.task:hover { border-top-color: var(--accent); border-right-color: var(--accent); border-bottom-color: var(--accent); }
+.dag.has-open .task[aria-expanded="false"] { opacity: .9; }
+.task[aria-expanded="true"] { background: color-mix(in srgb, var(--state) 10%, var(--bg)); box-shadow: 0 0 0 1px var(--state), 0 6px 18px var(--shadow); }
+.task-id { font-size: 10.5px; color: var(--key); }
+.task-title { font-size: 13px; font-weight: 600; }
+.task-time { font-family: "IBM Plex Mono", monospace; font-size: 10.5px; color: color-mix(in srgb, var(--muted) 80%, var(--text)); }   /* --muted không đủ 4.5:1 khi task mờ đi */
+.task-dot { position: absolute; top: 9px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--state); }
+.task[data-state="queued"] .task-dot { background: none; border: 1.5px solid var(--state); }
+.task[data-state="running"] .task-dot { animation: task-pulse 2.4s ease-in-out infinite; }
+@keyframes task-pulse { 50% { opacity: .3; } }
+
+.task-goal { position: relative; z-index: 1; grid-column: 1 / -1; grid-row: 3; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 14px 16px; border: 1px solid var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+.task-goal blockquote { font-size: 15px; font-weight: 600; line-height: 1.45; }
+
+/* Sơ đồ hiện lần lượt theo thứ tự chạy, như DAG vừa được trigger */
+.js .result:not(.show) .task, .js .result:not(.show) .task-goal { opacity: 0; }
+.result.show .task, .result.show .task-goal { animation: task-in .35s ease-out backwards; animation-delay: calc(var(--i) * 110ms); }
+@keyframes task-in { from { opacity: 0; transform: translateY(6px); } }
+.result.show .task[data-state="running"] .task-dot { animation-delay: 1.3s; }
+
+/* Bảng chi tiết của task, cùng kiểu thẻ học vấn. Luôn có sẵn trong trang để aria-live đọc được nội dung mới */
+.task-log:not(:empty) { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; padding: 16px 18px; }
+.task-log:empty::before { content: none; }
+.log-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.log-head code { font-size: 14px; font-weight: 600; color: var(--key); overflow-wrap: anywhere; }
+.log-head span:last-child { font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--muted); }
+.log-items { display: grid; gap: 6px; list-style: none; font-size: 14px; line-height: 1.45; }
+.log-items li { display: grid; grid-template-columns: 18px minmax(0, 1fr); column-gap: 4px; }
+.log-items li > i { font-style: normal; text-align: center; }
+.log-items .log-note { color: var(--muted); }
+.log-items .log-note span { grid-column: 2; }
+.log-items small { font-size: 13px; color: var(--muted); }
+.log-line { display: flex; justify-content: space-between; gap: 12px; font-family: "IBM Plex Mono", monospace; font-size: 12px; color: var(--key); }
+.log-line b { font-weight: 500; color: var(--accent); }
+.log-bar { height: 6px; border-radius: 3px; background: var(--line); }
+.log-bar i { display: block; height: 100%; width: var(--w); border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--deco)); animation: log-bar .7s cubic-bezier(.33, 1, .68, 1); }
+@keyframes log-bar { from { width: 0; } }
+
+/* Bảng 8 dòng: mã task được xuống dòng sau dấu gạch dưới để không tràn ở 390px */
+.tid { font-family: "IBM Plex Mono", monospace; font-size: 13px; color: var(--key); }
+
+/* Màn hẹp: nhánh chính thành một cột, đường nối thẳng đứng bên trái, chi tiết mở ngay dưới task */
+@media (max-width: 899.98px) {
+  .dag { display: flex; flex-direction: column; gap: 12px; padding-left: 24px; }
+  .dag-par { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; padding: 10px; border: 1px dashed var(--line); border-radius: 8px; }
+  .dag-par > p { display: block; grid-column: 1 / -1; font-family: "IBM Plex Mono", monospace; font-size: 11px; color: var(--muted); }
+  .task, .task-goal { grid-column: auto; grid-row: auto; }
+  .task-id, .task-time { font-size: 11px; }
+  .task-title { font-size: 14px; }
+  .dag .task-log:not(:empty) { margin-top: 0; }
+  .dag-par .task-log { grid-column: 1 / -1; }
+  #taskTable th small { display: none; }
+  #taskTable td, #taskTable th { padding: 9px 7px; }
+}
 
 /* ===== Dự án ===== */
 .project { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; padding: 24px; background: var(--panel); border: 1px solid var(--line); border-top: 0; border-radius: 0 0 10px 10px; }
@@ -649,6 +748,8 @@ html:not(.glyph-on) .orbit-screen, html:not(.glyph-on) .boot { background-image:
   .meter i.on::after { transform: none; }
   .js .result .edu-bar i { width: var(--w); }
   .js .hobby.result { opacity: 1; transform: none; }
+  .js .result:not(.show) .task, .js .result:not(.show) .task-goal { opacity: 1; }
+  .dag-line { stroke-dashoffset: 0; }
   .js .pic > img { opacity: 1; }
   .pic.scan::after { content: none; }
 }

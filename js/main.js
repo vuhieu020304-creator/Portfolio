@@ -131,7 +131,7 @@ function replayResults() { results.forEach(replay); }
 const TABLES = [
   { id: 'ho_so',    title: 'Giới thiệu', rows: 1, cols: 'ho_ten · tuyen_ngon' },
   { id: 'so_thich', title: 'Sở thích',   rows: 5, cols: 'ten · nen_tang' },
-  { id: 'muc_tieu', title: 'Mục tiêu',   rows: 3, cols: 'thoi_han · trang_thai' },
+  { id: 'muc_tieu', title: 'Mục tiêu',   rows: 8, cols: 'task_id · trang_thai' },
   { id: 'nang_luc', title: 'Năng lực',   rows: 14, cols: 'ky_nang · cap_do' },
   { id: 'du_an',    title: 'Dự án',      rows: 2, cols: 'ten · cong_nghe' },
   { id: 'hoc_van',  title: 'Học vấn',    rows: 4, cols: 'loai · ket_qua' },
@@ -250,6 +250,7 @@ function isOrbitView() { return document.body.dataset.view === 'orbit'; }
 // Esc: quay về quỹ đạo
 addEventListener('keydown', e => {
   if (e.key !== 'Escape' || $('#viewer').open || e.target.matches('input, textarea')) return;
+  if (closeOpenTask()) return;
   if (document.body.dataset.view !== 'orbit') location.hash = 'orbit';
 });
 
@@ -328,7 +329,7 @@ function setupViewToggle(viewBtn, key, cards, table) {
     cards.hidden = view !== 'cards';
     table.hidden = view !== 'table';
     $$('[data-v]', viewBtn).forEach(s => s.classList.toggle('on', s.dataset.v === view));
-    viewBtn.setAttribute('aria-label', 'Chuyển dạng hiển thị, đang là ' + (view === 'cards' ? 'dạng thẻ' : 'dạng bảng'));
+    viewBtn.setAttribute('aria-label', 'Chuyển dạng hiển thị, đang là ' + $('.on', viewBtn).textContent);
   }
   show();
   viewBtn.addEventListener('click', () => {
@@ -387,6 +388,235 @@ if (!reduceMotion && matchMedia('(pointer: fine)').matches) $$('.pic').forEach(p
 /* ---------- 4b. Học vấn: icon, thanh chạy bằng CSS, số chạy cùng lúc ---------- */
 $$('.icon-box[data-icon]').forEach(box => { box.innerHTML = iconHTML(box.dataset.icon); });
 $('#eduCards').addEventListener('reveal', e => countUp(e.target, 1200));
+
+/* ---------- 4d. Mục tiêu: lộ trình vẽ như một DAG. Dữ liệu lấy từ các dòng của bảng, nên hai dạng luôn khớp ---------- */
+const DAG_ID = 'lo_trinh_data_engineer';
+const DAG_RUN_MS = 1300;      // các nút hiện và đường nối vẽ xong, rồi chấm dữ liệu mới chạy
+const PACKET_SPEED = 70;      // px mỗi giây
+const EDGE_RADIUS = 6, AXIS_BELOW = 24;   // bo góc đường gấp khúc; khoảng từ hàng song song xuống trục gộp
+const PACKET_GAP = 33;        // chấm chậm nên 30 khung/giây là đủ mượt; xin khung hình thưa lại để màn 144Hz không phải dựng đủ 144 lần
+const LOG_MARKS = { '✔': ['s-success', 'đã làm được', 1], '●': ['s-running', 'đang làm', .5], '○': ['s-queued', 'chưa bắt đầu', 0] };
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const dagTasks = $$('#taskTable tbody tr').map(tr => {
+  const [, id, time, title, state] = [...tr.cells].map(td => td.textContent);
+  // "SQL ✔ (ghi chú)" tách thành tên, ký hiệu, ghi chú; mục không có ký hiệu chỉ là ghi chú, không tính vào tiến độ
+  const log = tr.dataset.log.split(' · ').map(item => { const [name, mark, note = ''] = item.split(/([✔●○])/); return { name: name.trim(), mark, note: note.trim() }; });
+  return { id, time, title, state, log, parallel: tr.dataset.branch === 'song_song' };
+});
+const dagMain = dagTasks.filter(t => !t.parallel), dagParallel = dagTasks.filter(t => t.parallel);
+dagMain.forEach((t, i) => Object.assign(t, { col: i + 1, row: 1, rank: i }));
+dagParallel.forEach((t, i) => Object.assign(t, { col: i + 2, row: 2, rank: i + 1 }));
+
+const taskHTML = t => `<button type="button" class="task" data-task="${t.id}" data-state="${t.state}" aria-expanded="false" aria-controls="taskLog" aria-label="${esc(t.id)}: ${esc(t.title)}, ${esc(t.time)}, trạng thái ${t.state}" style="--c:${t.col};--r:${t.row};--i:${t.rank}">
+    <code class="task-id">${t.id.replace(/_/g, '_<wbr>')}</code>
+    <span class="task-title">${esc(t.title)}</span>
+    <span class="task-time">${esc(t.time)}</span>
+    <i class="task-dot"></i>
+  </button>`;
+const countState = s => dagTasks.filter(t => t.state === s).length;
+const nextRun = dagTasks.find(t => t.state === 'queued');
+const dagWrap = $('#dagWrap');
+dagWrap.innerHTML = `<div class="dag-run">
+    <p>DAG <b>${DAG_ID}</b> · <b>${countState('running')}/${dagTasks.length}</b> task đang chạy · <b>${countState('success')}</b> hoàn thành · next_run: <b>${nextRun ? esc(nextRun.time.toLowerCase()) : '-'}</b></p>
+    <div class="dag-cells" aria-hidden="true">${dagTasks.map(t => `<i data-state="${t.state}"></i>`).join('')}</div>
+  </div>
+  <div class="dag" id="dag">
+    <svg class="dag-edges" aria-hidden="true">
+      <defs>${['', ' live'].map(c => `<marker id="dagArrow${c ? 'Live' : ''}" class="dag-arrow${c}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.5 8 4 0 7.5z"></path></marker>`).join('')}</defs>
+      <g class="dag-lines"></g>
+    </svg>
+    <div class="dag-packets" aria-hidden="true"></div>
+    ${taskHTML(dagMain[0])}
+    <div class="dag-par" data-state="running"><p>-- chạy song song suốt lộ trình</p>${dagParallel.map(taskHTML).join('')}</div>
+    ${dagMain.slice(1).map(taskHTML).join('')}
+    <div class="task-goal" style="--i:${dagMain.length}">
+      <code class="task-id">tuyen_ngon</code>
+      <blockquote>“Một Data Engineer xuất sắc không tối ưu hệ thống cho ngày hôm nay, họ xây dựng kiến trúc để sẵn sàng cho sự bùng nổ dữ liệu của 5 năm tới.”</blockquote>
+    </div>
+  </div>
+  <div class="task-log frame" id="taskLog" aria-live="polite"></div>`;
+const dag = $('#dag'), taskLog = $('#taskLog'), dagLines = $('.dag-lines', dag), dagPacketBox = $('.dag-packets', dag);
+const taskEl = id => $(`.task[data-task="${id}"]`, dag);
+const narrowDag = matchMedia('(max-width: 899.98px)');
+let dagPaths = [], dagPackets = [], dagDrawn = false, dagInView = false, dagRaf = 0, dagWait = 0;
+
+/* Cặp nút cần nối. Màn hẹp là một chuỗi dọc, khối song song tính như một nút */
+function dagEdges() {
+  if (narrowDag.matches) {
+    const chain = [...dag.children].filter(e => e.matches('.task, .dag-par, .task-goal'));
+    return chain.slice(1).map((to, i) => [chain[i], to]);
+  }
+  const main = dagMain.map(t => taskEl(t.id)), last = main[main.length - 1];
+  return [
+    ...main.slice(1).map((to, i) => [main[i], to]),
+    [last, $('.task-goal', dag)],
+    ...dagParallel.flatMap(t => [[main[0], taskEl(t.id)], [taskEl(t.id), last]])
+  ];
+}
+// Đoạn đã chạy: cả hai đầu đều là task đã hoặc đang chạy. Đích tuyen_ngon chưa có trạng thái nên vẫn là nét đứt
+const edgeLive = (a, b) => a.dataset.state !== 'queued' && !!b.dataset.state && b.dataset.state !== 'queued';
+const edgeRank = el => +(el.style.getPropertyValue('--i') || 0);
+function edgePath(a, b) {
+  const A = { x: a.offsetLeft, y: a.offsetTop, w: a.offsetWidth, h: a.offsetHeight }, B = { x: b.offsetLeft, y: b.offsetTop, w: b.offsetWidth, h: b.offsetHeight };
+  if (narrowDag.matches) return `M10 ${A.y + 20} L10 ${B.y + 19}`;
+  if (A.y === B.y) {                                  // cùng hàng: nối từ phải sang trái
+    const x1 = A.x + A.w, x2 = B.x - 1, y = A.y + A.h / 2, g = (x2 - x1) / 2;
+    return `M${x1} ${y} C${x1 + g} ${y} ${x2 - g} ${y} ${x2} ${y}`;
+  }
+  if (b.matches('.task-goal')) {                      // mid_level_de thẳng xuống đích đến
+    const x = A.x + A.w * .75;
+    return `M${x} ${A.y + A.h} L${x} ${B.y - 1}`;
+  }
+  // Nhánh song song: đường gấp khúc kiểu sơ đồ mạch. Các nhánh đi chung một trục ngang nên không cắt nhau
+  const x1 = A.x + A.w / 2, y1 = A.y + A.h, r = EDGE_RADIUS;
+  if (B.y > A.y) {                                    // tách ra: trục nằm giữa hai hàng
+    const x2 = B.x + B.w / 2, axis = (y1 + B.y) / 2;
+    return `M${x1} ${y1} V${axis - r} Q${x1} ${axis} ${x1 + r} ${axis} H${x2 - r} Q${x2} ${axis} ${x2} ${axis + r} V${B.y - 1}`;
+  }
+  const x2 = B.x + B.w * .3, axis = y1 + AXIS_BELOW;   // gộp lại: trục ngay dưới hàng song song
+  return `M${x1} ${y1} V${axis - r} Q${x1} ${axis} ${x1 + r} ${axis} H${x2 - r} Q${x2} ${axis} ${x2} ${axis - r} V${B.y + B.h + 1}`;
+}
+function dagLayout() {
+  if (!dag.offsetParent || !dag.offsetWidth) return;     // đang ẩn: ResizeObserver gọi lại khi hiện
+  const edges = dagEdges();
+  if (dagPaths.length !== edges.length) {
+    dagLines.innerHTML = '';
+    dagPacketBox.innerHTML = '';
+    dagPaths = edges.map(() => dagLines.appendChild(document.createElementNS(SVG_NS, 'path')));
+    dagPackets = [];
+  }
+  edges.forEach(([a, b], i) => {
+    const path = dagPaths[i], live = edgeLive(a, b);
+    path.setAttribute('d', edgePath(a, b));
+    path.setAttribute('class', 'dag-line' + (live ? ' live' : ''));
+    const len = path.getTotalLength();
+    // mẫu gồm đường cần vẽ rồi một khoảng trống dài bằng cả đường: đẩy dashoffset về 0 là đường hiện dần, kể cả nét đứt
+    // nét đứt đếm nhịp từ cuối đường, để hai đường gộp chung một đoạn thì nét trùng khít, không thành nét liền
+    const rest = len % 8;
+    const dashes = live ? [len, 0] : [Math.max(rest - 4, 0), Math.min(rest, 4), ...Array.from({ length: Math.floor(len / 8) * 2 }, () => 4)];
+    const drawn = dashes.reduce((s, d) => s + d, 0);
+    dashes[dashes.length - 1] += len;
+    path.setAttribute('stroke-dasharray', dashes.join(' '));
+    path.style.setProperty('--len', drawn);
+    path.style.setProperty('--i', edgeRank(narrowDag.matches ? b : a));
+    path.dataset.live = live ? '1' : '';
+  });
+  showArrows();
+  buildPackets();
+}
+function showArrows() {
+  const on = dagDrawn || reduceMotion;
+  dagPaths.forEach(p => { if (on) p.setAttribute('marker-end', `url(#dagArrow${p.dataset.live ? 'Live' : ''})`); else p.removeAttribute('marker-end'); });
+}
+
+/* Chấm dữ liệu: cùng kiểu chấm chạy dọc đường của quỹ đạo, do requestAnimationFrame điều khiển để dừng được hẳn.
+   Là phần tử HTML di chuyển bằng transform: đổi tọa độ chấm SVG sẽ bắt vẽ lại cả lớp SVG mỗi khung hình */
+function buildPackets() {
+  if (reduceMotion) return;
+  const perEdge = narrowDag.matches ? 1 : 2, live = dagPaths.filter(p => p.dataset.live);
+  if (dagPackets.length === live.length * perEdge) { dagPackets.forEach(p => { p.len = p.path.getTotalLength(); }); return; }
+  dagPacketBox.innerHTML = '';
+  dagPackets = live.flatMap(path => Array.from({ length: perEdge }, (_, k) => {
+    const dot = dagPacketBox.appendChild(document.createElement('i'));
+    dot.className = 'dag-packet';
+    return { path, dot, k: k / perEdge, len: path.getTotalLength() };
+  }));
+}
+function packetFrame(now) {
+  dagRaf = 0;
+  dagWait = setTimeout(() => { dagWait = 0; dagRaf = requestAnimationFrame(packetFrame); }, PACKET_GAP);
+  dagPackets.forEach(p => {
+    const at = p.path.getPointAtLength((now / 1000 * PACKET_SPEED + p.k * p.len) % p.len);
+    p.dot.style.transform = `translate3d(${at.x.toFixed(1)}px, ${at.y.toFixed(1)}px, 0)`;
+  });
+}
+function syncPackets() {
+  const on = !reduceMotion && dagDrawn && dagInView && !document.hidden && dagWrap.classList.contains('show');
+  dag.classList.toggle('flowing', on);
+  if (on && !dagRaf && !dagWait) dagRaf = requestAnimationFrame(packetFrame);
+  if (!on) { cancelAnimationFrame(dagRaf); clearTimeout(dagWait); dagRaf = dagWait = 0; }
+}
+// Rời mục, chuyển sang dạng bảng hay cuộn khỏi màn hình đều làm sơ đồ không còn giao với khung nhìn
+new IntersectionObserver(entries => {
+  dagInView = entries[entries.length - 1].isIntersecting;
+  syncPackets();
+}).observe(dag);
+document.addEventListener('visibilitychange', syncPackets);
+new ResizeObserver(dagLayout).observe(dag);
+narrowDag.addEventListener('change', () => { placeTaskLog(); dagLayout(); });
+
+dagWrap.addEventListener('reveal', () => {
+  dagLayout();
+  dagDrawn = false;
+  showArrows();
+  syncPackets();
+  clearTimeout(sbTimer);
+  sbQuery.className = 'sb-query busy';
+  sbQuery.textContent = `DAG run · ${DAG_ID} ...`;
+  sbTimer = setTimeout(() => {
+    dagDrawn = true;
+    showArrows();
+    syncPackets();
+    sbQuery.className = 'sb-query done';
+    sbQuery.textContent = `OK · ${dagTasks.length} tasks`;
+  }, reduceMotion ? 0 : DAG_RUN_MS);
+});
+
+/* Bấm một task: xem chi tiết như xem log */
+let openTaskId = null;
+const logProgress = t => {
+  const marked = t.log.filter(i => i.mark);
+  return marked.reduce((s, i) => s + LOG_MARKS[i.mark][2], 0) / marked.length * 100;
+};
+function logHTML(t) {
+  const pct = +logProgress(t).toFixed(1);
+  const items = t.log.map(i => {
+    if (!i.mark) return `<li class="log-note"><span>${esc(i.name)}</span></li>`;
+    const [cls, label] = LOG_MARKS[i.mark];
+    return `<li><i class="${cls}" role="img" aria-label="${label}">${i.mark}</i><span>${esc(i.name)}${i.note ? ` <small>${esc(i.note)}</small>` : ''}</span></li>`;
+  }).join('');
+  return `<div class="log-head"><code>${t.id}</code><span class="status st-${t.state}">${t.state}</span><span>${esc(t.time)}</span></div>
+    <ul class="log-items">${items}</ul>
+    <div class="log-line"><span>tien_do</span><b>${pct}%</b></div>
+    <div class="log-bar" role="meter" aria-label="Tiến độ ${t.id}" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="--w:${pct}%"></i></div>`;
+}
+function placeTaskLog() {
+  const el = openTaskId && taskEl(openTaskId);
+  if (narrowDag.matches && el) el.after(taskLog);
+  else if (taskLog.parentElement !== dagWrap) dagWrap.append(taskLog);
+}
+function setOpenTask(id) {
+  openTaskId = id;
+  $$('.task', dag).forEach(el => el.setAttribute('aria-expanded', el.dataset.task === id));
+  dag.classList.toggle('has-open', !!id);
+  taskLog.innerHTML = id ? logHTML(dagTasks.find(t => t.id === id)) : '';
+  placeTaskLog();
+}
+$$('.task', dag).forEach(el => {
+  el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') SFX.play('hover'); });
+  el.addEventListener('click', () => {
+    const id = el.dataset.task;
+    if (id === openTaskId) { setOpenTask(null); return; }
+    SFX.play('tab');
+    setOpenTask(id);
+    if (narrowDag.matches) el.scrollIntoView({ block: 'nearest' });   // chi tiết ở trên vừa đóng có thể đẩy task ra khỏi màn hình
+  });
+});
+// Esc: đóng chi tiết nếu đang nhìn thấy. Ở màn SELECT * thì chi tiết đã cuộn khỏi màn hình không giữ phím Esc lại
+function closeOpenTask() {
+  if (!openTaskId || !dag.offsetParent) return false;
+  if (document.body.dataset.view === 'all') {
+    const r = taskLog.getBoundingClientRect();
+    if (r.bottom <= 0 || r.top >= innerHeight) return false;
+  }
+  const el = taskEl(openTaskId);
+  setOpenTask(null);
+  el.focus({ preventScroll: true });
+  return true;
+}
+setOpenTask('du_an_ca_nhan');   // việc đang tập trung
+setupViewToggle($('#dagView'), 'vvh_goal_view', dagWrap, $('#taskTable'));
 
 /* ---------- 5. Xem ảnh phóng to ---------- */
 const viewer = $('#viewer');
@@ -487,7 +717,7 @@ document.addEventListener('click', e => {
     '$ psql -h localhost -d <em>vvh_db</em> -U khach',
     'Đang kết nối tới máy chủ ............ <b>OK</b>',
     'Xác thực người dùng "khach" ......... <b>OK</b>',
-    'Nạp lược đồ: 7 bảng, 32 dòng ........ <b>OK</b>',
+    'Nạp lược đồ: 7 bảng, 37 dòng ........ <b>OK</b>',
     'Dựng quỹ đạo các bảng ............... <b>OK</b>',
     '<em>vvh_db=#</em> sẵn sàng.'
   ];

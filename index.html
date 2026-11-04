@@ -65,7 +65,7 @@
   <div class="orbit-center" id="orbitCenter">
     <p class="center-db">database · vvh_db</p>
     <h1>Vũ Văn <span>Hiếu</span></h1>
-    <p class="center-sub">-- 7 bảng · 32 dòng</p>
+    <p class="center-sub">-- 7 bảng · 37 dòng</p>
   </div>
   <div class="orbit-stage" id="orbitStage"></div>
   <div class="orbit-foot">
@@ -326,17 +326,28 @@
     <!-- ===== 03 MỤC TIÊU ===== -->
     <section id="muc_tieu" class="table-block">
       <p class="label">-- Bảng 03 · Mục tiêu nghề nghiệp: trở thành Data Engineer</p>
-      <div class="query"><div class="ln" aria-hidden="true">1<br>2</div><code><span class="kw">SELECT</span> thoi_han, muc_tieu, trang_thai <span class="kw">FROM</span> muc_tieu
-<span class="kw">ORDER BY</span> thoi_han;</code></div>
-      <table class="grid result">
-        <thead><tr><th>id</th><th>thoi_han<small>INTERVAL</small></th><th>muc_tieu<small>TEXT</small></th><th>trang_thai<small>ENUM</small></th></tr></thead>
+      <div class="query"><div class="ln" aria-hidden="true">1<br>2</div><code><span class="kw">SELECT</span> task_id, thoi_gian, trang_thai <span class="kw">FROM</span> muc_tieu
+<span class="kw">WHERE</span> dag_id = <span class="st">'lo_trinh_data_engineer'</span> <span class="kw">ORDER BY</span> thu_tu;</code></div>
+      <div class="where">
+        <span class="dag-legend"><span><i class="s-success">●</i> success</span><span><i class="s-running">●</i> running</span><span><i class="s-queued">○</i> queued</span></span>
+        <button type="button" class="view-toggle" id="dagView"><b>\x</b><span data-v="cards">dạng DAG</span> / <span data-v="table">dạng bảng</span></button>
+      </div>
+      <!-- Sơ đồ dựng bằng JS từ các dòng của bảng dưới đây -->
+      <div class="dag-wrap result" id="dagWrap"></div>
+      <table class="grid result" id="taskTable">
+        <thead><tr><th>id</th><th>task_id<small>VARCHAR</small></th><th>thoi_gian<small>VARCHAR</small></th><th>muc_tieu<small>TEXT</small></th><th>trang_thai<small>ENUM</small></th></tr></thead>
         <tbody>
-          <tr><td>1</td><td class="mono">2 – 3 năm</td><td><b>Thông thạo công cụ dữ liệu</b><span class="sub">Nắm chắc SQL và Python, thêm Java hoặc Scala cho Big Data.</span></td><td><span class="status run-s">đang chạy</span></td></tr>
-          <tr><td>2</td><td class="mono">4 – 5 năm</td><td><b>Junior → Mid-Level Data Engineer</b><span class="sub">Đi từ vị trí Junior lên Mid-Level.</span></td><td><span class="status plan">kế hoạch</span></td></tr>
-          <tr><td>3</td><td class="mono">song song</td><td><b>Ngoại ngữ &amp; quản lý</b><span class="sub">Lấy chứng chỉ tiếng Anh, rèn thêm kỹ năng quản lý.</span></td><td><span class="status run-s">đang chạy</span></td></tr>
+          <tr data-log="SQL ✔ (đã dùng trong dự án ERP) · Git &amp; GitHub ✔ · Python ● đang học sâu · C++ ✔ nền tảng giải thuật"><td>1</td><td class="tid">nen_<wbr>tang</td><td>Năm 1 – 2 đại học</td><td>Nền tảng lập trình &amp; dữ liệu</td><td><span class="status st-running">running</span></td></tr>
+          <tr data-log="TOGET Enterprise: ERP sản xuất cám &amp; kế toán, v0.6.5 ● đang hoàn thiện · Trang hồ sơ vvh_db ✔ · Sắp tới: tự làm 1 pipeline nhỏ (lấy dữ liệu → làm sạch → đưa vào kho → vẽ dashboard) ○"><td>2</td><td class="tid">du_<wbr>an_<wbr>ca_<wbr>nhan</td><td>Năm 2 – 3</td><td>Dự án cá nhân</td><td><span class="status st-running">running</span></td></tr>
+          <tr data-log="Apache Spark ○ · Apache Airflow ○ · Một nền tảng cloud (AWS hoặc GCP) ○ · Java hoặc Scala ○"><td>3</td><td class="tid">cong_<wbr>cu_<wbr>big_<wbr>data</td><td>Năm 3</td><td>Công cụ Big Data &amp; Cloud</td><td><span class="status st-queued">queued</span></td></tr>
+          <tr data-log="Vị trí Data Engineer / Data Analyst ○ · Nơi thực tập: chưa xác định. Hiện tập trung vào dự án cá nhân"><td>4</td><td class="tid">thuc_<wbr>tap</td><td>Khoảng năm 3</td><td>Thực tập</td><td><span class="status st-queued">queued</span></td></tr>
+          <tr data-log="Thông thạo SQL và Python ○ · Xây dựng và vận hành pipeline thật ○"><td>5</td><td class="tid">junior_<wbr>de</td><td>2 – 3 năm tới</td><td>Junior Data Engineer</td><td><span class="status st-queued">queued</span></td></tr>
+          <tr data-log="Từ Junior lên Mid-Level ○ · Thiết kế kiến trúc dữ liệu cho hệ thống lớn ○"><td>6</td><td class="tid">mid_<wbr>level_<wbr>de</td><td>4 – 5 năm tới</td><td>Mid-Level Data Engineer</td><td><span class="status st-queued">queued</span></td></tr>
+          <tr data-branch="song_song" data-log="Mục tiêu IELTS 7.0 ●"><td>7</td><td class="tid">tieng_<wbr>anh</td><td>Song song</td><td>Tiếng Anh</td><td><span class="status st-running">running</span></td></tr>
+          <tr data-branch="song_song" data-log="Đọc sách về quản lý (xem bảng danh_sach_doc ở Sở thích) ● · Rèn kỹ năng làm việc nhóm qua dự án ●"><td>8</td><td class="tid">ky_<wbr>nang_<wbr>quan_<wbr>ly</td><td>Song song</td><td>Kỹ năng quản lý</td><td><span class="status st-running">running</span></td></tr>
         </tbody>
       </table>
-      <div class="meta"><span>Kết quả · muc_tieu</span><span>3 dòng</span></div>
+      <div class="meta"><span>Kết quả · muc_tieu · 8 dòng</span></div>
     </section>
 
     <!-- ===== 04 NĂNG LỰC (bộ lọc = WHERE) ===== -->
